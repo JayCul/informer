@@ -1,0 +1,19 @@
+{
+  "name": "cohort",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A privacy-preserving contribution primitive on Midnight.",
+  "scripts": {
+    "compact": "compact compile src/cohort.compact managed/cohort",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  },
+  "dependencies": {
+    "@midnight-ntwrk/compact-runtime": "0.16.0"
+  }
+}
