@@ -72,6 +72,16 @@ export async function connectLace() {
   };
 
   const midnightProvider = {
+    // KNOWN LIMITATION. MidnightProvider.submitTx must return a transaction
+    // identifier, but the connector's submitTransaction resolves to void, so
+    // there is nothing to return. Handing back the serialized transaction lets
+    // submission succeed but breaks the confirmation watch, which then queries
+    // the indexer with this value in place of a transaction hash and fails
+    // with IndexerQueryError: Failed to fetch.
+    //
+    // The transaction is submitted and the contract does deploy. Recover the
+    // address with scripts/find-contract.mjs until this computes a real hash
+    // from the balanced transaction.
     submitTx: async (tx) => {
       const serialized = typeof tx === 'string' ? tx : tx.serialize();
       await api.submitTransaction(serialized);

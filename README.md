@@ -191,8 +191,28 @@ docker run -p 6300:6300 midnightntwrk/proof-server:8.1.0 midnight-proof-server -
 
 | Network | Contract address |
 |---|---|
-| Preprod | pending |
+| Preprod | `f922a567742b600096790c5595f53e0678d928822aff12f301aa4b556f02fa57` |
 | Mainnet | not yet deployed |
+
+Deploy transaction `69cb7398ad31958166ed7148763b506845c39a9de535e487c9e26fa927bc7034`,
+block 2460183, 2026-09-08.
+
+Identified by its own provenance rather than by assumption: the deployment is
+ours because both `policyHash` and `circuitCommitment` appear in its on-chain
+state. `node scripts/find-contract.mjs` re-runs that check against Preprod.
+
+### Known issue: the post-submit watch
+
+The deploy transaction is proven, balanced and submitted successfully, and then
+the app fails while waiting for confirmation, with `IndexerQueryError: Failed to
+fetch`. The contract is deployed regardless.
+
+The cause is the wallet adapter. The DApp connector's `submitTransaction`
+returns `void`, but `MidnightProvider.submitTx` is required to return a
+transaction identifier, and the adapter returns the serialized transaction
+instead. The confirmation watch then queries the indexer with that value in
+place of a transaction hash. Use `scripts/find-contract.mjs` to recover the
+address until the adapter computes a real transaction hash.
 
 ---
 
