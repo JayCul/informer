@@ -7,6 +7,10 @@ import { deployContract } from '@midnight-ntwrk/midnight-js-contracts';
 import { Contract } from '../managed/informer/contract/index.js';
 import { PREPROD, INFORMER_PARAMS, PROVENANCE, label32, hex32 } from '../src/config.js';
 import { connectLace } from './lace.js';
+import {
+  browserPasswordProvider,
+  passwordIsPersistent,
+} from './privateStorage.js';
 
 const $ = (id) => document.getElementById(id);
 const log = (msg, kind = 'info') => {
@@ -51,9 +55,20 @@ $('deploy').addEventListener('click', async () => {
   $('deploy').disabled = true;
   try {
     log('Building providers.');
+    if (!passwordIsPersistent()) {
+      log(
+        'Storage is blocked, so private state will not survive a reload.',
+        'err',
+      );
+    }
     const providers = {
       privateStateProvider: levelPrivateStateProvider({
         privateStateStoreName: 'informer-private-state',
+        // The store is encrypted at rest, so a password provider is required.
+        privateStoragePasswordProvider: browserPasswordProvider(),
+        // Namespaces private state per wallet, so switching wallets does not
+        // read another wallet's state.
+        accountId: session.addresses.shielded,
       }),
       publicDataProvider: indexerPublicDataProvider(
         PREPROD.indexer,
