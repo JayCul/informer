@@ -168,6 +168,27 @@ npm run dev         # serves the DApp on http://localhost:5173
 The DApp needs the Lace extension, unlocked and set to Preprod, plus a running
 proof server.
 
+### On Windows: `compact` is not the Compact compiler
+
+PowerShell and CMD already have a built-in `compact.exe`, the NTFS file
+compression tool. Running `compact compile ...` outside WSL silently runs that
+instead and reports a compression ratio rather than compiling anything, which
+looks like success:
+
+```
+Of 2 files within 3 directories
+0 are compressed and 2 are not compressed.
+The compression ratio is 1.0 to 1.
+```
+
+The Midnight compiler only exists inside WSL. Either run the build from an
+Ubuntu terminal, or route through WSL from PowerShell in one command:
+
+```powershell
+wsl -d Ubuntu -- bash -lc "source ~/.local/bin/env && cd /mnt/c/path/to/informer && compact compile src/informer.compact managed/informer"
+npm run verify
+```
+
 ### Toolchain version, and why it is pinned
 
 Toolchain 0.34.0 targets ledger version 9, which is not yet deployed on
