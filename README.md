@@ -191,11 +191,15 @@ docker run -p 6300:6300 midnightntwrk/proof-server:8.1.0 midnight-proof-server -
 
 | Network | Contract address |
 |---|---|
-| Preprod | `f922a567742b600096790c5595f53e0678d928822aff12f301aa4b556f02fa57` |
+| Preprod | `5fbb4537a81a10e0744890e48045d4709f87838796ba852913cdc57f7f6f72d1` |
 | Mainnet | not yet deployed |
 
-Deploy transaction `69cb7398ad31958166ed7148763b506845c39a9de535e487c9e26fa927bc7034`,
-block 2460183, 2026-09-08.
+Deploy transaction `2b237dff132198d0c2456a700d138ea04e3fe69e819bdb00343b4b5f410d4b16`,
+block 2460317, 2026-09-08.
+
+An earlier deployment at `f922a567...` (block 2460183) is also live. It was
+made before the confirmation watch was fixed, so the app never reported its
+address. The address above is the canonical one.
 
 Identified by its own provenance rather than by assumption: the deployment is
 ours because both `policyHash` and `circuitCommitment` appear in its on-chain
