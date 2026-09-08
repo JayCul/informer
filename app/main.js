@@ -5,7 +5,7 @@ import { levelPrivateStateProvider } from '@midnight-ntwrk/midnight-js-level-pri
 import { deployContract } from '@midnight-ntwrk/midnight-js-contracts';
 
 import { Contract } from '../managed/cohort/contract/index.js';
-import { PREPROD, FIRST_COHORT, label32 } from '../src/config.js';
+import { PREPROD, FIRST_COHORT, PROVENANCE, label32, hex32 } from '../src/config.js';
 import { connectLace } from './lace.js';
 
 const $ = (id) => document.getElementById(id);
@@ -83,6 +83,8 @@ $('deploy').addEventListener('click', async () => {
         FIRST_COHORT.kAnonymityFloor,
         label32(FIRST_COHORT.cohortLabel),
         label32(FIRST_COHORT.periodLabel),
+        hex32(PROVENANCE.policyHash),
+        hex32(PROVENANCE.circuitCommitment),
       ],
     });
 
@@ -105,4 +107,6 @@ $('params').textContent = [
   `k-anonymity floor ${FIRST_COHORT.kAnonymityFloor}`,
   `cohort            ${FIRST_COHORT.cohortLabel}`,
   `period            ${FIRST_COHORT.periodLabel}`,
+  `policy hash       ${PROVENANCE.policyHash.slice(0, 24)}...`,
+  `circuit commit    ${PROVENANCE.circuitCommitment.slice(0, 24)}...`,
 ].join('\n');

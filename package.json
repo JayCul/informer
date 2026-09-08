@@ -1,9 +1,9 @@
 {
-  "name": "cohort",
+  "name": "informer",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "A privacy-preserving contribution primitive on Midnight.",
+  "description": "Informer: privacy-preserving compensation intelligence on Midnight.",
   "scripts": {
     "compact": "compact compile src/cohort.compact managed/cohort",
     "test": "vitest run",
@@ -11,9 +11,10 @@
     "preflight": "node scripts/preflight.js",
     "proof-server": "docker run --rm -p 6300:6300 midnightntwrk/proof-server:8.1.0 midnight-proof-server -v",
     "sync:zk": "node scripts/sync-zk.js",
-    "dev": "npm run sync:zk && vite",
-    "build": "npm run sync:zk && vite build",
-    "preview": "vite preview"
+    "dev": "npm run sync:zk && npm run provenance && vite",
+    "build": "npm run sync:zk && npm run provenance && vite build",
+    "preview": "vite preview",
+    "provenance": "node scripts/provenance.js"
   },
   "devDependencies": {
     "typescript": "^5.6.3",
