@@ -4,6 +4,7 @@ import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client
 import { levelPrivateStateProvider } from '@midnight-ntwrk/midnight-js-level-private-state-provider';
 import { deployContract } from '@midnight-ntwrk/midnight-js-contracts';
 import { setNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
+import { CompiledContract } from '@midnight-ntwrk/compact-js';
 
 import { Contract } from '../managed/informer/contract/index.js';
 import { PREPROD, INFORMER_PARAMS, PROVENANCE, label32, hex32 } from '../src/config.js';
@@ -91,9 +92,16 @@ $('deploy').addEventListener('click', async () => {
       midnightProvider: session.midnightProvider,
     };
 
+    // midnight-js 4.1.1 takes a CompiledContract wrapper, not a bare
+    // `new Contract(...)`. The wrapper carries the witnesses on an internal
+    // symbol that the runtime reads.
+    const compiledContract = CompiledContract.make('informer', Contract).pipe(
+      CompiledContract.withWitnesses(witnesses),
+    );
+
     log('Deploying. The wallet will ask you to approve the transaction.');
     const deployed = await deployContract(providers, {
-      contract: new Contract(witnesses),
+      compiledContract,
       privateStateId: 'informer',
       initialPrivateState: {},
       args: [
