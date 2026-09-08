@@ -13,6 +13,11 @@ import {
   browserPasswordProvider,
   passwordIsPersistent,
 } from './privateStorage.js';
+import {
+  traceObject,
+  installGlobalErrorLogging,
+  installFetchLogging,
+} from './instrument.js';
 
 // Must run before any wallet or contract operation. midnight-js keeps this as
 // module-level state and throws on first use if it was never set.
@@ -32,6 +37,9 @@ const witnesses = {
   rawContribution: ({ privateState }) => [privateState, 0n],
   contributionBucket: ({ privateState }) => [privateState, 0n],
 };
+
+installGlobalErrorLogging(log);
+installFetchLogging(log);
 
 let session = null;
 
@@ -61,6 +69,15 @@ $('deploy').addEventListener('click', async () => {
   $('deploy').disabled = true;
   try {
     log('Building providers.');
+    const zkConfigProvider = traceObject(
+      'zkConfigProvider',
+      new FetchZkConfigProvider(
+        `${window.location.origin}/zk/informer`,
+        fetch.bind(window),
+      ),
+      ['getProverKey', 'getVerifierKey', 'getZKIR', 'get'],
+      log,
+    );
     if (!passwordIsPersistent()) {
       log(
         'Storage is blocked, so private state will not survive a reload.',
@@ -83,13 +100,28 @@ $('deploy').addEventListener('click', async () => {
       // Serves the compiled circuits and keys from public/zk/informer.
       // Deliberately not /managed: that URL would collide with the real
       // managed/ sources Vite transforms, and public/ files are served raw.
-      zkConfigProvider: new FetchZkConfigProvider(
-        `${window.location.origin}/zk/informer`,
-        fetch.bind(window),
+      zkConfigProvider: zkConfigProvider,
+      // httpClientProofProvider takes (url, zkConfigProvider, config). Passing
+      // only the url left it without key material, because the internal
+      // getKeyMaterial swallows the resulting error and returns undefined.
+      proofProvider: traceObject(
+        'proofProvider',
+        httpClientProofProvider(PREPROD.proofServer, zkConfigProvider),
+        ['proveTx'],
+        log,
       ),
-      proofProvider: httpClientProofProvider(PREPROD.proofServer),
-      walletProvider: session.walletProvider,
-      midnightProvider: session.midnightProvider,
+      walletProvider: traceObject(
+        'walletProvider',
+        session.walletProvider,
+        ['balanceTx', 'getCoinPublicKey', 'getEncryptionPublicKey'],
+        log,
+      ),
+      midnightProvider: traceObject(
+        'midnightProvider',
+        session.midnightProvider,
+        ['submitTx'],
+        log,
+      ),
     };
 
     // midnight-js 4.1.1 takes a CompiledContract wrapper, not a bare
@@ -123,7 +155,10 @@ $('deploy').addEventListener('click', async () => {
     log(`Contract address: ${address}`, 'ok');
   } catch (err) {
     console.error(err);
-    log(err.message, 'err');
+    log(`${err.name}: ${err.message}`, 'err');
+    if (err.cause) log(`cause: ${err.cause.message ?? err.cause}`, 'err');
+    const frame = (err.stack ?? '').split(String.fromCharCode(10))[1]?.trim();
+    if (frame) log(`at ${frame}`, 'err');
     $('deploy').disabled = false;
   }
 });
