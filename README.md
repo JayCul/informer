@@ -226,8 +226,12 @@ issues. It resolves to transaction `69cb7398...`.
 ## Tests
 
 ```bash
-npm test
+npm test      # unit tests
+npm run verify   # toolchain, circuits, witnesses, artifacts, provenance, deployment
 ```
+
+`npm run verify` reads only real build artifacts and prints a single summary of
+what this tree actually contains.
 
 Ten tests covering Informer parameter publication, provenance commitments,
 bucket aggregation across

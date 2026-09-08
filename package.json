@@ -14,7 +14,8 @@
     "dev": "npm run sync:zk && npm run provenance && vite",
     "build": "npm run sync:zk && npm run provenance && vite build",
     "preview": "vite preview",
-    "provenance": "node scripts/provenance.js"
+    "provenance": "node scripts/provenance.js",
+    "verify": "node scripts/verify.mjs"
   },
   "devDependencies": {
     "typescript": "^5.6.3",
