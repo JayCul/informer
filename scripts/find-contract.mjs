@@ -8,10 +8,13 @@
 // only if both commitments appear in its on-chain state.
 //
 //   node scripts/find-contract.mjs [blocksToScan]
+//   node scripts/find-contract.mjs <contractAddress>   (direct lookup)
 import { PROVENANCE } from '../src/provenance.js';
 
 const ENDPOINT = 'https://indexer.preprod.midnight.network/api/v4/graphql';
-const DEPTH = Number(process.argv[2] ?? 200);
+const ARG = process.argv[2] ?? '200';
+const DIRECT = /^[0-9a-fA-F]{64}$/.test(ARG) ? ARG.toLowerCase() : null;
+const DEPTH = DIRECT ? 0 : Number(ARG);
 
 const gql = async (query, variables) => {
   const res = await fetch(ENDPOINT, {
@@ -40,6 +43,40 @@ const STATE_Q = `query($a: HexEncoded!) {
     transaction { hash block { height timestamp } }
   }
 }`;
+
+const report = (d) => {
+  console.log(`  address  ${d.address}`);
+  console.log(`  tx       ${d.tx}`);
+  console.log(`  block    ${d.height}  ${d.when}`);
+  console.log(`  verified policyHash + circuitCommitment present in state
+`);
+};
+
+if (DIRECT) {
+  const detail = await gql(STATE_Q, { a: DIRECT });
+  const action = detail.contractAction;
+  if (!action) {
+    console.log(`No contract found at ${DIRECT}`);
+    process.exit(1);
+  }
+  const state = (action.state ?? '').toLowerCase();
+  const isOurs =
+    state.includes(PROVENANCE.policyHash) &&
+    state.includes(PROVENANCE.circuitCommitment);
+  console.log(`${action.__typename} at ${action.address}
+`);
+  if (!isOurs) {
+    console.log('  NOT an Informer deployment: provenance commitments absent.');
+    process.exit(1);
+  }
+  report({
+    address: action.address,
+    tx: action.transaction.hash,
+    height: action.transaction.block.height,
+    when: new Date(action.transaction.block.timestamp).toISOString(),
+  });
+  process.exit(0);
+}
 
 const head = await gql('{ block { height } }');
 const top = head.block.height;
