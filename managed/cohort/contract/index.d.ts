@@ -28,6 +28,8 @@ export type Ledger = {
   readonly kAnonymityFloor: bigint;
   readonly cohortId: Uint8Array;
   readonly period: Uint8Array;
+  readonly policyHash: Uint8Array;
+  readonly circuitCommitment: Uint8Array;
   readonly contributionCount: bigint;
   buckets: {
     isEmpty(): boolean;
@@ -60,7 +62,9 @@ export declare class Contract<PS = any, W extends Witnesses<PS> = Witnesses<PS>>
                initMax_0: bigint,
                initFloor_0: bigint,
                initCohortId_0: Uint8Array,
-               initPeriod_0: Uint8Array): __compactRuntime.ConstructorResult<PS>;
+               initPeriod_0: Uint8Array,
+               initPolicyHash_0: Uint8Array,
+               initCircuitCommitment_0: Uint8Array): __compactRuntime.ConstructorResult<PS>;
 }
 
 export declare function ledger(state: __compactRuntime.StateValue | __compactRuntime.ChargedState): Ledger;

@@ -22,6 +22,16 @@ export ledger kAnonymityFloor: Uint<64>;
 export ledger cohortId: Bytes<32>;
 export ledger period: Bytes<32>;
 
+// Cohort provenance. Both are set once at deployment and never change.
+// policyHash commits to the eligibility policy document this cohort was
+// opened under, so a reviewer can confirm the rules were not rewritten after
+// contributions started. circuitCommitment commits to the verifier key and
+// circuit version, so a reviewer can confirm every contribution in this
+// cohort was produced by the same audited circuit.
+// Both are 32 bytes, set once, and carry no per-contributor information.
+export ledger policyHash: Bytes<32>;
+export ledger circuitCommitment: Bytes<32>;
+
 // ---------- Public aggregate ----------
 export ledger contributionCount: Counter;
 export ledger buckets: Map<Uint<8>, Uint<64>>;
@@ -38,7 +48,9 @@ constructor(
   initMax: Uint<64>,
   initFloor: Uint<64>,
   initCohortId: Bytes<32>,
-  initPeriod: Bytes<32>
+  initPeriod: Bytes<32>,
+  initPolicyHash: Bytes<32>,
+  initCircuitCommitment: Bytes<32>
 ) {
   // Cohort parameters are deliberately public: participants must be able to
   // audit the band, the bucket width and the k-anonymity floor they are
@@ -49,6 +61,8 @@ constructor(
   kAnonymityFloor = disclose(initFloor);
   cohortId = disclose(initCohortId);
   period = disclose(initPeriod);
+  policyHash = disclose(initPolicyHash);
+  circuitCommitment = disclose(initCircuitCommitment);
 }
 
 export circuit contribute(): [] {

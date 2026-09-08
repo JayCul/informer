@@ -109,14 +109,34 @@
       }
     },
     {
-      "name": "contributionCount",
+      "name": "policyHash",
       "index": 6,
+      "exported": true,
+      "storage": "Cell",
+      "type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "circuitCommitment",
+      "index": 7,
+      "exported": true,
+      "storage": "Cell",
+      "type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "contributionCount",
+      "index": 8,
       "exported": true,
       "storage": "Counter"
     },
     {
       "name": "buckets",
-      "index": 7,
+      "index": 9,
       "exported": true,
       "storage": "Map",
       "key": {
@@ -130,7 +150,7 @@
     },
     {
       "name": "spentNullifiers",
-      "index": 8,
+      "index": 10,
       "exported": true,
       "storage": "Set",
       "type": {
