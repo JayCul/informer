@@ -96,12 +96,10 @@ record(
     ? `${process.env.MIDNIGHT_SHIELDED_ADDRESS.slice(0, 28)}...`
     : 'missing (set in .env)',
 );
-record(
-  'deploy seed present',
-  Boolean(process.env.MIDNIGHT_SEED),
-  process.env.MIDNIGHT_SEED
-    ? 'set (value not read or logged)'
-    : 'missing (set MIDNIGHT_SEED in .env yourself)',
+// Deploying happens in the browser through the Lace connector, so no seed is
+// needed and none should be stored. Reported for information only.
+console.log(
+  `INFO  ${'deploy path'.padEnd(34)} browser via Lace connector (no seed stored)`,
 );
 
 // --- Summary ---------------------------------------------------------------
