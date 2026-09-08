@@ -37,6 +37,8 @@ export class CohortSimulator {
     floor = 25n,
     cohortId = bytes32('software-engineer-4-6y'),
     period = bytes32('2026-Q3'),
+    policyHash = bytes32('policy-v1'),
+    circuitCommitment = bytes32('circuit-v1'),
   } = {}) {
     this.contract = new Contract(witnesses);
     this.address = sampleContractAddress();
@@ -51,6 +53,8 @@ export class CohortSimulator {
         floor,
         cohortId,
         period,
+        policyHash,
+        circuitCommitment,
       );
 
     this.state = currentContractState.data;

@@ -20,6 +20,34 @@ describe('cohort parameters', () => {
     expect(l.buckets.isEmpty()).toBe(true);
     expect(l.spentNullifiers.isEmpty()).toBe(true);
   });
+
+  it('publishes immutable provenance for the policy and the circuit', () => {
+    const sim = new CohortSimulator();
+    const l = sim.ledger;
+
+    // Both commitments are readable by anyone, so a reviewer can confirm the
+    // rules were not rewritten and every contribution came from one circuit.
+    expect(l.policyHash).toEqual(bytes32('policy-v1'));
+    expect(l.circuitCommitment).toEqual(bytes32('circuit-v1'));
+  });
+
+  it('keeps provenance fixed while contributions accumulate', () => {
+    const sim = new CohortSimulator();
+    const before = sim.ledger;
+    const policy = before.policyHash;
+    const circuit = before.circuitCommitment;
+
+    sim.contribute({ secret: secretFrom('alice'), raw: 72_000n, bucket: 7n });
+    const after = sim.contribute({
+      secret: secretFrom('bob'),
+      raw: 84_000n,
+      bucket: 8n,
+    });
+
+    expect(after.contributionCount).toBe(2n);
+    expect(after.policyHash).toEqual(policy);
+    expect(after.circuitCommitment).toEqual(circuit);
+  });
 });
 
 describe('contribution', () => {

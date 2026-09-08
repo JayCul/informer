@@ -44,6 +44,27 @@ try {
   record('contract-info.json', false, err.message);
 }
 
+// --- 2b. Provenance commitments -------------------------------------------
+try {
+  const { createHash } = await import('node:crypto');
+  const sha256 = (path) =>
+    createHash('sha256').update(readFileSync(path)).digest('hex');
+  const { PROVENANCE: prov } = await import('../src/provenance.js');
+
+  record(
+    'policyHash matches POLICY.md',
+    prov.policyHash === sha256('POLICY.md'),
+    `${prov.policyHash.slice(0, 16)}...`,
+  );
+  record(
+    'circuitCommitment matches key',
+    prov.circuitCommitment === sha256('managed/cohort/keys/contribute.verifier'),
+    `${prov.circuitCommitment.slice(0, 16)}...`,
+  );
+} catch (err) {
+  record('provenance', false, `${err.message} (run: npm run provenance)`);
+}
+
 // --- 3. Proof server -------------------------------------------------------
 const proofServer = process.env.PROOF_SERVER ?? PREPROD.proofServer;
 try {
