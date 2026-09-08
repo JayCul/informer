@@ -201,18 +201,21 @@ Identified by its own provenance rather than by assumption: the deployment is
 ours because both `policyHash` and `circuitCommitment` appear in its on-chain
 state. `node scripts/find-contract.mjs` re-runs that check against Preprod.
 
-### Known issue: the post-submit watch
+### Confirmation watch
 
-The deploy transaction is proven, balanced and submitted successfully, and then
-the app fails while waiting for confirmation, with `IndexerQueryError: Failed to
-fetch`. The contract is deployed regardless.
+`MidnightProvider.submitTx` has to return a transaction identifier, which
+midnight-js then hands to `watchForTxData`. The DApp connector's
+`submitTransaction` resolves to `void`, so there is nothing to return from the
+wallet call. The identifier is taken from the transaction instead, via the
+ledger's `identifiers()`. The ledger documents `transactionHash()` as unsuitable
+here, because transactions can be merged, and `identifiers()` as the set that
+may be used to watch for a specific transaction.
 
-The cause is the wallet adapter. The DApp connector's `submitTransaction`
-returns `void`, but `MidnightProvider.submitTx` is required to return a
-transaction identifier, and the adapter returns the serialized transaction
-instead. The confirmation watch then queries the indexer with that value in
-place of a transaction hash. Use `scripts/find-contract.mjs` to recover the
-address until the adapter computes a real transaction hash.
+Verified against the real deployment rather than in the abstract: the raw
+transaction is fetched from the indexer, decoded by the same code path that
+decodes the wallet's balanced transaction, re-encoded byte for byte, and the
+identifier computed from it is then used in the exact query `watchForTxData`
+issues. It resolves to transaction `69cb7398...`.
 
 ---
 

@@ -6,6 +6,11 @@
 // this repo or its environment.
 
 import { PREPROD } from '../src/config.js';
+import {
+  encodeForWallet,
+  decodeFromWallet,
+  watchIdentifier,
+} from './txcodec.js';
 
 const NETWORK_ID = PREPROD.networkId;
 
@@ -61,31 +66,26 @@ export async function connectLace() {
     getCoinPublicKey: () => shielded.shieldedCoinPublicKey,
     getEncryptionPublicKey: () => shielded.shieldedEncryptionPublicKey,
     // midnight-js hands over an unbalanced transaction; Lace balances it and
-    // pays fees, prompting the user.
+    // pays fees, prompting the user. midnight-js expects a transaction object
+    // back, not a string, so the wallet's response is parsed before returning.
     balanceTx: async (tx) => {
-      const serialized = typeof tx === 'string' ? tx : tx.serialize();
-      const { tx: balanced } = await api.balanceUnsealedTransaction(serialized, {
-        payFees: true,
-      });
-      return balanced;
+      const { tx: balanced } = await api.balanceUnsealedTransaction(
+        encodeForWallet(tx),
+        { payFees: true },
+      );
+      return decodeFromWallet(balanced);
     },
   };
 
   const midnightProvider = {
-    // KNOWN LIMITATION. MidnightProvider.submitTx must return a transaction
-    // identifier, but the connector's submitTransaction resolves to void, so
-    // there is nothing to return. Handing back the serialized transaction lets
-    // submission succeed but breaks the confirmation watch, which then queries
-    // the indexer with this value in place of a transaction hash and fails
-    // with IndexerQueryError: Failed to fetch.
-    //
-    // The transaction is submitted and the contract does deploy. Recover the
-    // address with scripts/find-contract.mjs until this computes a real hash
-    // from the balanced transaction.
+    // The connector's submitTransaction resolves to void, so the identifier to
+    // watch for is taken from the transaction itself. identifiers() is the set
+    // the ledger documents as usable for watching; transactionHash() is
+    // explicitly not, because transactions can be merged.
     submitTx: async (tx) => {
-      const serialized = typeof tx === 'string' ? tx : tx.serialize();
-      await api.submitTransaction(serialized);
-      return serialized;
+      const identifier = watchIdentifier(tx);
+      await api.submitTransaction(encodeForWallet(tx));
+      return identifier;
     },
   };
 
