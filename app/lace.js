@@ -5,7 +5,17 @@
 // submit a transaction; it cannot read a key, and there is no seed anywhere in
 // this repo or its environment.
 
-const NETWORK_ID = 'preprod';
+import { PREPROD } from '../src/config.js';
+
+const NETWORK_ID = PREPROD.networkId;
+
+/** Reads the network segment out of a bech32m address's human-readable part. */
+export function networkOfAddress(address) {
+  const hrp = address.slice(0, address.lastIndexOf('1'));
+  const parts = hrp.split('_');
+  // mn_shield-addr_preprod -> preprod;  mn_shield-addr -> mainnet
+  return parts.length >= 3 ? parts[parts.length - 1] : 'mainnet';
+}
 
 /** Discover the injected Lace connector, waiting briefly for extension inject. */
 export async function findLace({ timeoutMs = 5000 } = {}) {
@@ -36,6 +46,16 @@ export async function connectLace() {
     api.getUnshieldedAddress(),
     api.getDustAddress(),
   ]);
+
+  // Catch the common case of Lace being pointed at another network before any
+  // transaction is built, rather than failing deep inside key parsing.
+  const walletNetwork = networkOfAddress(shielded.shieldedAddress);
+  if (walletNetwork !== NETWORK_ID) {
+    throw new Error(
+      `Wallet is on ${walletNetwork}, but this app targets ${NETWORK_ID}. ` +
+        `Switch the Lace network to ${NETWORK_ID} and reconnect.`,
+    );
+  }
 
   const walletProvider = {
     getCoinPublicKey: () => shielded.shieldedCoinPublicKey,

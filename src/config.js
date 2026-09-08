@@ -2,6 +2,10 @@
 // endpoints every Preprod participant uses.
 export const PREPROD = {
   name: 'preprod',
+  // Consumed by setNetworkId(). midnight-js uses it to parse the wallet's
+  // bech32m keys, so it must match the network segment of the wallet's
+  // addresses (mn_shield-addr_preprod1...).
+  networkId: 'preprod',
   indexer: 'https://indexer.preprod.midnight.network/api/v4/graphql',
   indexerWs: 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws',
   node: 'https://rpc.preprod.midnight.network',

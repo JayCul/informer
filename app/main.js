@@ -3,6 +3,7 @@ import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-p
 import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client-proof-provider';
 import { levelPrivateStateProvider } from '@midnight-ntwrk/midnight-js-level-private-state-provider';
 import { deployContract } from '@midnight-ntwrk/midnight-js-contracts';
+import { setNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
 
 import { Contract } from '../managed/informer/contract/index.js';
 import { PREPROD, INFORMER_PARAMS, PROVENANCE, label32, hex32 } from '../src/config.js';
@@ -11,6 +12,10 @@ import {
   browserPasswordProvider,
   passwordIsPersistent,
 } from './privateStorage.js';
+
+// Must run before any wallet or contract operation. midnight-js keeps this as
+// module-level state and throws on first use if it was never set.
+setNetworkId(PREPROD.networkId);
 
 const $ = (id) => document.getElementById(id);
 const log = (msg, kind = 'info') => {
