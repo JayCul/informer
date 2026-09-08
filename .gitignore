@@ -7,3 +7,4 @@ dist/
 
 # managed/ is intentionally committed: the compiled circuits and keys are a
 # required deliverable.
+public/zk/
