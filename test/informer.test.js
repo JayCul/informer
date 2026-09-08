@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CohortSimulator, bytes32, secretFrom } from './simulator.js';
+import { InformerSimulator, bytes32, secretFrom } from './simulator.js';
 
 const ok = (label, raw, bucket) => ({
   secret: secretFrom(label),
@@ -7,9 +7,9 @@ const ok = (label, raw, bucket) => ({
   bucket,
 });
 
-describe('cohort parameters', () => {
-  it('publishes the cohort band, bucket width and k-anonymity floor', () => {
-    const sim = new CohortSimulator();
+describe('informer parameters', () => {
+  it('publishes the informer band, bucket width and k-anonymity floor', () => {
+    const sim = new InformerSimulator();
     const l = sim.ledger;
 
     expect(l.bucketWidth).toBe(10_000n);
@@ -22,7 +22,7 @@ describe('cohort parameters', () => {
   });
 
   it('publishes immutable provenance for the policy and the circuit', () => {
-    const sim = new CohortSimulator();
+    const sim = new InformerSimulator();
     const l = sim.ledger;
 
     // Both commitments are readable by anyone, so a reviewer can confirm the
@@ -32,7 +32,7 @@ describe('cohort parameters', () => {
   });
 
   it('keeps provenance fixed while contributions accumulate', () => {
-    const sim = new CohortSimulator();
+    const sim = new InformerSimulator();
     const before = sim.ledger;
     const policy = before.policyHash;
     const circuit = before.circuitCommitment;
@@ -52,7 +52,7 @@ describe('cohort parameters', () => {
 
 describe('contribution', () => {
   it('records a contribution in the correct bucket', () => {
-    const sim = new CohortSimulator();
+    const sim = new InformerSimulator();
     const l = sim.contribute(ok('alice', 72_000n, 7n));
 
     expect(l.contributionCount).toBe(1n);
@@ -62,7 +62,7 @@ describe('contribution', () => {
   });
 
   it('aggregates several contributors without storing individual values', () => {
-    const sim = new CohortSimulator();
+    const sim = new InformerSimulator();
     sim.contribute(ok('alice', 72_000n, 7n));
     sim.contribute(ok('bob', 78_500n, 7n));
     const l = sim.contribute(ok('carol', 91_000n, 9n));
@@ -81,7 +81,7 @@ describe('contribution', () => {
 
 describe('unlinkable uniqueness', () => {
   it('rejects a second contribution from the same participant in the same period', () => {
-    const sim = new CohortSimulator();
+    const sim = new InformerSimulator();
     sim.contribute(ok('alice', 72_000n, 7n));
 
     expect(() => sim.contribute(ok('alice', 120_000n, 12n))).toThrow(
@@ -90,8 +90,8 @@ describe('unlinkable uniqueness', () => {
   });
 
   it('lets the same participant contribute again in a different period', () => {
-    const q3 = new CohortSimulator({ period: bytes32('2026-Q3') });
-    const q4 = new CohortSimulator({ period: bytes32('2026-Q4') });
+    const q3 = new InformerSimulator({ period: bytes32('2026-Q3') });
+    const q4 = new InformerSimulator({ period: bytes32('2026-Q4') });
 
     q3.contribute(ok('alice', 72_000n, 7n));
     const l = q4.contribute(ok('alice', 84_000n, 8n));
@@ -102,18 +102,18 @@ describe('unlinkable uniqueness', () => {
 });
 
 describe('anti-gaming constraints', () => {
-  it('rejects a contribution below the cohort band', () => {
-    const sim = new CohortSimulator();
+  it('rejects a contribution below the informer band', () => {
+    const sim = new InformerSimulator();
     expect(() => sim.contribute(ok('mallory', 500n, 0n))).toThrow(/below/);
   });
 
-  it('rejects a contribution above the cohort band', () => {
-    const sim = new CohortSimulator();
+  it('rejects a contribution above the informer band', () => {
+    const sim = new InformerSimulator();
     expect(() => sim.contribute(ok('mallory', 9_000_000n, 90n))).toThrow(/above/);
   });
 
   it('rejects a bucket index that does not match the contribution', () => {
-    const sim = new CohortSimulator();
+    const sim = new InformerSimulator();
     // Earns 72k but claims the 150k band.
     expect(() => sim.contribute(ok('mallory', 72_000n, 15n))).toThrow(
       /bucket index too high/,

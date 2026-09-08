@@ -3,7 +3,7 @@ import {
   createCircuitContext,
   sampleContractAddress,
 } from '@midnight-ntwrk/compact-runtime';
-import { Contract, ledger } from '../managed/cohort/contract/index.js';
+import { Contract, ledger } from '../managed/informer/contract/index.js';
 
 const COIN_PUBLIC_KEY = '0'.repeat(64);
 
@@ -26,16 +26,16 @@ export const secretFrom = (label) => {
 export const bytes32 = (label) => secretFrom(label);
 
 /**
- * Minimal in-memory simulator for the Cohort contract.
+ * Minimal in-memory simulator for the Informer contract.
  * Mirrors how a wallet would drive the circuit, without a proof server.
  */
-export class CohortSimulator {
+export class InformerSimulator {
   constructor({
     bucketWidth = 10_000n,
     min = 10_000n,
     max = 1_000_000n,
     floor = 25n,
-    cohortId = bytes32('software-engineer-4-6y'),
+    informerId = bytes32('software-engineer-4-6y'),
     period = bytes32('2026-Q3'),
     policyHash = bytes32('policy-v1'),
     circuitCommitment = bytes32('circuit-v1'),
@@ -51,7 +51,7 @@ export class CohortSimulator {
         min,
         max,
         floor,
-        cohortId,
+        informerId,
         period,
         policyHash,
         circuitCommitment,

@@ -3,9 +3,9 @@ pragma language_version 0.23;
 import CompactStandardLibrary;
 
 // ---------------------------------------------------------------------------
-// Cohort - a privacy-preserving contribution primitive.
+// Informer - a privacy-preserving contribution primitive.
 //
-// A cohort collects contributions from eligible participants and publishes an
+// A informer collects contributions from eligible participants and publishes an
 // aggregate distribution. The contract verifies that a contribution came from
 // an eligible participant and that the same participant has not already
 // contributed to this scope, without learning who the participant is.
@@ -14,20 +14,20 @@ import CompactStandardLibrary;
 // specific.
 // ---------------------------------------------------------------------------
 
-// ---------- Cohort parameters (public) ----------
+// ---------- Informer parameters (public) ----------
 export ledger bucketWidth: Uint<64>;
 export ledger minContribution: Uint<64>;
 export ledger maxContribution: Uint<64>;
 export ledger kAnonymityFloor: Uint<64>;
-export ledger cohortId: Bytes<32>;
+export ledger informerId: Bytes<32>;
 export ledger period: Bytes<32>;
 
-// Cohort provenance. Both are set once at deployment and never change.
-// policyHash commits to the eligibility policy document this cohort was
+// Informer provenance. Both are set once at deployment and never change.
+// policyHash commits to the eligibility policy document this Informer was
 // opened under, so a reviewer can confirm the rules were not rewritten after
 // contributions started. circuitCommitment commits to the verifier key and
 // circuit version, so a reviewer can confirm every contribution in this
-// cohort was produced by the same audited circuit.
+// informer was produced by the same audited circuit.
 // Both are 32 bytes, set once, and carry no per-contributor information.
 export ledger policyHash: Bytes<32>;
 export ledger circuitCommitment: Bytes<32>;
@@ -47,19 +47,19 @@ constructor(
   initMin: Uint<64>,
   initMax: Uint<64>,
   initFloor: Uint<64>,
-  initCohortId: Bytes<32>,
+  initInformerId: Bytes<32>,
   initPeriod: Bytes<32>,
   initPolicyHash: Bytes<32>,
   initCircuitCommitment: Bytes<32>
 ) {
-  // Cohort parameters are deliberately public: participants must be able to
+  // Informer parameters are deliberately public: participants must be able to
   // audit the band, the bucket width and the k-anonymity floor they are
   // contributing under. disclose() records that this exposure is intended.
   bucketWidth = disclose(initBucketWidth);
   minContribution = disclose(initMin);
   maxContribution = disclose(initMax);
   kAnonymityFloor = disclose(initFloor);
-  cohortId = disclose(initCohortId);
+  informerId = disclose(initInformerId);
   period = disclose(initPeriod);
   policyHash = disclose(initPolicyHash);
   circuitCommitment = disclose(initCircuitCommitment);
@@ -69,14 +69,14 @@ export circuit contribute(): [] {
   const secret = contributorSecret();
   const raw = rawContribution();
 
-  assert(raw >= minContribution, "contribution below cohort band");
-  assert(raw <= maxContribution, "contribution above cohort band");
+  assert(raw >= minContribution, "contribution below informer band");
+  assert(raw <= maxContribution, "contribution above informer band");
 
   const nullifier = persistentHash<Vector<3, Bytes<32>>>(
-    [secret, cohortId, period]
+    [secret, informerId, period]
   );
   assert(!spentNullifiers.member(disclose(nullifier)),
-         "already contributed to this cohort period");
+         "already contributed in this period");
 
   // Compact has no division operator, by design: division is expensive in a
   // ZK circuit. The bucket index is supplied as a witness and constrained by

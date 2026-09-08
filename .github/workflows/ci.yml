@@ -25,7 +25,7 @@ jobs:
         run: compact update 0.31
 
       - name: Compile contract
-        run: compact compile src/cohort.compact managed/cohort
+        run: compact compile src/informer.compact managed/informer
 
       - name: Install dependencies
         run: npm ci

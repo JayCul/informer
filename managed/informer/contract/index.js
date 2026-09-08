@@ -78,7 +78,7 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('contribute',
                                      'argument 1 (as invoked from Typescript)',
-                                     'cohort.compact line 68 char 1',
+                                     'informer.compact line 68 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
@@ -106,7 +106,7 @@ export class Contract {
     const initMin_0 = args_0[2];
     const initMax_0 = args_0[3];
     const initFloor_0 = args_0[4];
-    const initCohortId_0 = args_0[5];
+    const initInformerId_0 = args_0[5];
     const initPeriod_0 = args_0[6];
     const initPolicyHash_0 = args_0[7];
     const initCircuitCommitment_0 = args_0[8];
@@ -125,56 +125,56 @@ export class Contract {
     if (!(typeof(initBucketWidth_0) === 'bigint' && initBucketWidth_0 >= 0n && initBucketWidth_0 <= 18446744073709551615n)) {
       __compactRuntime.typeError('Contract state constructor',
                                  'argument 1 (argument 2 as invoked from Typescript)',
-                                 'cohort.compact line 45 char 1',
+                                 'informer.compact line 45 char 1',
                                  'Uint<0..18446744073709551616>',
                                  initBucketWidth_0)
     }
     if (!(typeof(initMin_0) === 'bigint' && initMin_0 >= 0n && initMin_0 <= 18446744073709551615n)) {
       __compactRuntime.typeError('Contract state constructor',
                                  'argument 2 (argument 3 as invoked from Typescript)',
-                                 'cohort.compact line 45 char 1',
+                                 'informer.compact line 45 char 1',
                                  'Uint<0..18446744073709551616>',
                                  initMin_0)
     }
     if (!(typeof(initMax_0) === 'bigint' && initMax_0 >= 0n && initMax_0 <= 18446744073709551615n)) {
       __compactRuntime.typeError('Contract state constructor',
                                  'argument 3 (argument 4 as invoked from Typescript)',
-                                 'cohort.compact line 45 char 1',
+                                 'informer.compact line 45 char 1',
                                  'Uint<0..18446744073709551616>',
                                  initMax_0)
     }
     if (!(typeof(initFloor_0) === 'bigint' && initFloor_0 >= 0n && initFloor_0 <= 18446744073709551615n)) {
       __compactRuntime.typeError('Contract state constructor',
                                  'argument 4 (argument 5 as invoked from Typescript)',
-                                 'cohort.compact line 45 char 1',
+                                 'informer.compact line 45 char 1',
                                  'Uint<0..18446744073709551616>',
                                  initFloor_0)
     }
-    if (!(initCohortId_0.buffer instanceof ArrayBuffer && initCohortId_0.BYTES_PER_ELEMENT === 1 && initCohortId_0.length === 32)) {
+    if (!(initInformerId_0.buffer instanceof ArrayBuffer && initInformerId_0.BYTES_PER_ELEMENT === 1 && initInformerId_0.length === 32)) {
       __compactRuntime.typeError('Contract state constructor',
                                  'argument 5 (argument 6 as invoked from Typescript)',
-                                 'cohort.compact line 45 char 1',
+                                 'informer.compact line 45 char 1',
                                  'Bytes<32>',
-                                 initCohortId_0)
+                                 initInformerId_0)
     }
     if (!(initPeriod_0.buffer instanceof ArrayBuffer && initPeriod_0.BYTES_PER_ELEMENT === 1 && initPeriod_0.length === 32)) {
       __compactRuntime.typeError('Contract state constructor',
                                  'argument 6 (argument 7 as invoked from Typescript)',
-                                 'cohort.compact line 45 char 1',
+                                 'informer.compact line 45 char 1',
                                  'Bytes<32>',
                                  initPeriod_0)
     }
     if (!(initPolicyHash_0.buffer instanceof ArrayBuffer && initPolicyHash_0.BYTES_PER_ELEMENT === 1 && initPolicyHash_0.length === 32)) {
       __compactRuntime.typeError('Contract state constructor',
                                  'argument 7 (argument 8 as invoked from Typescript)',
-                                 'cohort.compact line 45 char 1',
+                                 'informer.compact line 45 char 1',
                                  'Bytes<32>',
                                  initPolicyHash_0)
     }
     if (!(initCircuitCommitment_0.buffer instanceof ArrayBuffer && initCircuitCommitment_0.BYTES_PER_ELEMENT === 1 && initCircuitCommitment_0.length === 32)) {
       __compactRuntime.typeError('Contract state constructor',
                                  'argument 8 (argument 9 as invoked from Typescript)',
-                                 'cohort.compact line 45 char 1',
+                                 'informer.compact line 45 char 1',
                                  'Bytes<32>',
                                  initCircuitCommitment_0)
     }
@@ -359,7 +359,7 @@ export class Contract {
                                                  value: __compactRuntime.StateValue.newCell({ value: _descriptor_3.toValue(4n),
                                                                                               alignment: _descriptor_3.alignment() }).encode() } },
                                        { push: { storage: true,
-                                                 value: __compactRuntime.StateValue.newCell({ value: _descriptor_1.toValue(initCohortId_0),
+                                                 value: __compactRuntime.StateValue.newCell({ value: _descriptor_1.toValue(initInformerId_0),
                                                                                               alignment: _descriptor_1.alignment() }).encode() } },
                                        { ins: { cached: false, n: 1 } }]);
     __compactRuntime.queryLedgerState(context,
@@ -410,7 +410,7 @@ export class Contract {
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
       __compactRuntime.typeError('contributorSecret',
                                  'return value',
-                                 'cohort.compact line 41 char 1',
+                                 'informer.compact line 41 char 1',
                                  'Bytes<32>',
                                  result_0)
     }
@@ -427,7 +427,7 @@ export class Contract {
     if (!(typeof(result_0) === 'bigint' && result_0 >= 0n && result_0 <= 18446744073709551615n)) {
       __compactRuntime.typeError('rawContribution',
                                  'return value',
-                                 'cohort.compact line 42 char 1',
+                                 'informer.compact line 42 char 1',
                                  'Uint<0..18446744073709551616>',
                                  result_0)
     }
@@ -444,7 +444,7 @@ export class Contract {
     if (!(typeof(result_0) === 'bigint' && result_0 >= 0n && result_0 <= 255n)) {
       __compactRuntime.typeError('contributionBucket',
                                  'return value',
-                                 'cohort.compact line 43 char 1',
+                                 'informer.compact line 43 char 1',
                                  'Uint<0..256>',
                                  result_0)
     }
@@ -471,7 +471,7 @@ export class Contract {
                                                                                                                   alignment: _descriptor_3.alignment() } }] } },
                                                                                        { popeq: { cached: false,
                                                                                                   result: undefined } }]).value),
-                            'contribution below cohort band');
+                            'contribution below informer band');
     __compactRuntime.assert(raw_0
                             <=
                             _descriptor_0.fromValue(__compactRuntime.queryLedgerState(context,
@@ -486,7 +486,7 @@ export class Contract {
                                                                                                                   alignment: _descriptor_3.alignment() } }] } },
                                                                                        { popeq: { cached: false,
                                                                                                   result: undefined } }]).value),
-                            'contribution above cohort band');
+                            'contribution above informer band');
     const nullifier_0 = this._persistentHash_0([secret_0,
                                                 _descriptor_1.fromValue(__compactRuntime.queryLedgerState(context,
                                                                                                           partialProofData,
@@ -528,7 +528,7 @@ export class Contract {
                                                                                         'member',
                                                                                         { popeq: { cached: true,
                                                                                                    result: undefined } }]).value),
-                            'already contributed to this cohort period');
+                            'already contributed in this period');
     const bucket_0 = this._contributionBucket_0(context, partialProofData);
     const lower_0 = bucket_0
                     *
@@ -602,7 +602,7 @@ export class Contract {
                       0n;
     const tmp_0 = ((t1) => {
                     if (t1 > 18446744073709551615n) {
-                      throw new __compactRuntime.CompactError('cohort.compact line 92 char 36: cast from Field or Uint value to smaller Uint value failed: ' + t1 + ' is greater than 18446744073709551615');
+                      throw new __compactRuntime.CompactError('informer.compact line 92 char 36: cast from Field or Uint value to smaller Uint value failed: ' + t1 + ' is greater than 18446744073709551615');
                     }
                     return t1;
                   })(current_0 + 1n);
@@ -728,7 +728,7 @@ export function ledger(stateOrChargedState) {
                                                                         { popeq: { cached: false,
                                                                                    result: undefined } }]).value);
     },
-    get cohortId() {
+    get informerId() {
       return _descriptor_1.fromValue(__compactRuntime.queryLedgerState(context,
                                                                        partialProofData,
                                                                        [
@@ -847,7 +847,7 @@ export function ledger(stateOrChargedState) {
         if (!(typeof(key_0) === 'bigint' && key_0 >= 0n && key_0 <= 255n)) {
           __compactRuntime.typeError('member',
                                      'argument 1',
-                                     'cohort.compact line 37 char 1',
+                                     'informer.compact line 37 char 1',
                                      'Uint<0..256>',
                                      key_0)
         }
@@ -876,7 +876,7 @@ export function ledger(stateOrChargedState) {
         if (!(typeof(key_0) === 'bigint' && key_0 >= 0n && key_0 <= 255n)) {
           __compactRuntime.typeError('lookup',
                                      'argument 1',
-                                     'cohort.compact line 37 char 1',
+                                     'informer.compact line 37 char 1',
                                      'Uint<0..256>',
                                      key_0)
         }
@@ -956,7 +956,7 @@ export function ledger(stateOrChargedState) {
         if (!(elem_0.buffer instanceof ArrayBuffer && elem_0.BYTES_PER_ELEMENT === 1 && elem_0.length === 32)) {
           __compactRuntime.typeError('member',
                                      'argument 1',
-                                     'cohort.compact line 38 char 1',
+                                     'informer.compact line 38 char 1',
                                      'Bytes<32>',
                                      elem_0)
         }

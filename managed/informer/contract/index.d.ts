@@ -26,7 +26,7 @@ export type Ledger = {
   readonly minContribution: bigint;
   readonly maxContribution: bigint;
   readonly kAnonymityFloor: bigint;
-  readonly cohortId: Uint8Array;
+  readonly informerId: Uint8Array;
   readonly period: Uint8Array;
   readonly policyHash: Uint8Array;
   readonly circuitCommitment: Uint8Array;
@@ -61,7 +61,7 @@ export declare class Contract<PS = any, W extends Witnesses<PS> = Witnesses<PS>>
                initMin_0: bigint,
                initMax_0: bigint,
                initFloor_0: bigint,
-               initCohortId_0: Uint8Array,
+               initInformerId_0: Uint8Array,
                initPeriod_0: Uint8Array,
                initPolicyHash_0: Uint8Array,
                initCircuitCommitment_0: Uint8Array): __compactRuntime.ConstructorResult<PS>;

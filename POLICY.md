@@ -1,9 +1,9 @@
-# Cohort eligibility policy
+# Informer eligibility policy
 
-**Cohort:** `software-engineer-4-6y`
+**Informer ID:** `software-engineer-4-6y`
 **Period:** `2026-Q3`
 
-The SHA-256 of this file is committed on chain as `policyHash` when the cohort
+The SHA-256 of this file is committed on chain as `policyHash` when the Informer
 is deployed. If this file changes, the hash no longer matches, and anyone can
 tell that the rules were rewritten after contributions began.
 
@@ -11,7 +11,7 @@ tell that the rules were rewritten after contributions began.
 
 ## 1. Who may contribute
 
-A participant is eligible for this cohort if all of the following hold:
+A participant is eligible for this Informer if all of the following hold:
 
 - They work, or worked during the period, as a software engineer.
 - They have between 4 and 6 years of professional experience, counted from
@@ -27,7 +27,7 @@ contract**. See section 5.
 A single annual total compensation figure for the period, in USD, comprising
 base salary plus cash bonus plus the annualised value of equity granted.
 
-The figure must fall within the cohort band:
+The figure must fall within the band:
 
 | Parameter | Value |
 |---|---|
@@ -42,17 +42,17 @@ Contributions outside the band are rejected by the circuit.
 Exactly two things per contribution:
 
 - The bucket index the figure falls in.
-- A nullifier scoped to this cohort and period.
+- A nullifier scoped to this Informer and period.
 
 The figure itself, the participant's identity, and every other field collected
 locally remain private and never reach the chain.
 
 ## 4. One contribution per participant
 
-A participant may contribute once per cohort per period. The contract enforces
-this by recording a nullifier derived from the participant's secret, the cohort
+A participant may contribute once per Informer per period. The contract enforces
+this by recording a nullifier derived from the participant's secret, the Informer
 identifier and the period. The same participant produces an unrelated nullifier
-in a different cohort or period, so contributions cannot be correlated across
+in a different Informer or period, so contributions cannot be correlated across
 scopes.
 
 ## 5. Known limitations of this policy version
@@ -78,5 +78,5 @@ Stated here rather than left for a reader to discover.
 ## 6. Versioning
 
 This policy is versioned by its own hash. A change to the eligibility rules,
-the band, or the bucket width requires a new cohort deployment with a new
-`policyHash`. Existing cohorts are immutable.
+the band, or the bucket width requires a new Informer deployment with a new
+`policyHash`. Existing deployments are immutable.

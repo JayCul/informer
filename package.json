@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Informer: privacy-preserving compensation intelligence on Midnight.",
   "scripts": {
-    "compact": "compact compile src/cohort.compact managed/cohort",
+    "compact": "compact compile src/informer.compact managed/informer",
     "test": "vitest run",
     "test:watch": "vitest",
     "preflight": "node scripts/preflight.js",

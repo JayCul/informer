@@ -13,10 +13,10 @@ const record = (name, ok, detail) => {
 
 // --- 1. Compiled artifacts -------------------------------------------------
 const required = [
-  'managed/cohort/contract/index.js',
-  'managed/cohort/keys/contribute.prover',
-  'managed/cohort/keys/contribute.verifier',
-  'managed/cohort/zkir/contribute.bzkir',
+  'managed/informer/contract/index.js',
+  'managed/informer/keys/contribute.prover',
+  'managed/informer/keys/contribute.verifier',
+  'managed/informer/zkir/contribute.bzkir',
 ];
 for (const path of required) {
   record(`artifact ${path.split('/').pop()}`, existsSync(path), path);
@@ -25,7 +25,7 @@ for (const path of required) {
 // --- 2. Toolchain pinning --------------------------------------------------
 try {
   const info = JSON.parse(
-    readFileSync('managed/cohort/compiler/contract-info.json', 'utf8'),
+    readFileSync('managed/informer/compiler/contract-info.json', 'utf8'),
   );
   const expected = {
     'compiler-version': '0.31.1',
@@ -58,7 +58,7 @@ try {
   );
   record(
     'circuitCommitment matches key',
-    prov.circuitCommitment === sha256('managed/cohort/keys/contribute.verifier'),
+    prov.circuitCommitment === sha256('managed/informer/keys/contribute.verifier'),
     `${prov.circuitCommitment.slice(0, 16)}...`,
   );
 } catch (err) {

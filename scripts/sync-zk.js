@@ -2,11 +2,11 @@
 // them via FetchZkConfigProvider.
 import { cpSync, mkdirSync, existsSync, rmSync } from 'node:fs';
 
-if (!existsSync('managed/cohort')) {
-  console.error('managed/cohort missing. Run: npm run compact');
+if (!existsSync('managed/informer')) {
+  console.error('managed/informer missing. Run: npm run compact');
   process.exit(1);
 }
 rmSync('public/zk', { recursive: true, force: true });
 mkdirSync('public/zk', { recursive: true });
-cpSync('managed/cohort', 'public/zk/cohort', { recursive: true });
-console.log('synced managed/cohort -> public/zk/cohort');
+cpSync('managed/informer', 'public/zk/informer', { recursive: true });
+console.log('synced managed/informer -> public/zk/informer');

@@ -89,7 +89,7 @@
       }
     },
     {
-      "name": "cohortId",
+      "name": "informerId",
       "index": 4,
       "exported": true,
       "storage": "Cell",

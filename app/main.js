@@ -4,8 +4,8 @@ import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client
 import { levelPrivateStateProvider } from '@midnight-ntwrk/midnight-js-level-private-state-provider';
 import { deployContract } from '@midnight-ntwrk/midnight-js-contracts';
 
-import { Contract } from '../managed/cohort/contract/index.js';
-import { PREPROD, FIRST_COHORT, PROVENANCE, label32, hex32 } from '../src/config.js';
+import { Contract } from '../managed/informer/contract/index.js';
+import { PREPROD, INFORMER_PARAMS, PROVENANCE, label32, hex32 } from '../src/config.js';
 import { connectLace } from './lace.js';
 
 const $ = (id) => document.getElementById(id);
@@ -53,17 +53,17 @@ $('deploy').addEventListener('click', async () => {
     log('Building providers.');
     const providers = {
       privateStateProvider: levelPrivateStateProvider({
-        privateStateStoreName: 'cohort-private-state',
+        privateStateStoreName: 'informer-private-state',
       }),
       publicDataProvider: indexerPublicDataProvider(
         PREPROD.indexer,
         PREPROD.indexerWs,
       ),
-      // Serves the compiled circuits and keys from public/zk/cohort.
+      // Serves the compiled circuits and keys from public/zk/informer.
       // Deliberately not /managed: that URL would collide with the real
       // managed/ sources Vite transforms, and public/ files are served raw.
       zkConfigProvider: new FetchZkConfigProvider(
-        `${window.location.origin}/zk/cohort`,
+        `${window.location.origin}/zk/informer`,
         fetch.bind(window),
       ),
       proofProvider: httpClientProofProvider(PREPROD.proofServer),
@@ -74,15 +74,15 @@ $('deploy').addEventListener('click', async () => {
     log('Deploying. The wallet will ask you to approve the transaction.');
     const deployed = await deployContract(providers, {
       contract: new Contract(witnesses),
-      privateStateId: 'cohort',
+      privateStateId: 'informer',
       initialPrivateState: {},
       args: [
-        FIRST_COHORT.bucketWidth,
-        FIRST_COHORT.minContribution,
-        FIRST_COHORT.maxContribution,
-        FIRST_COHORT.kAnonymityFloor,
-        label32(FIRST_COHORT.cohortLabel),
-        label32(FIRST_COHORT.periodLabel),
+        INFORMER_PARAMS.bucketWidth,
+        INFORMER_PARAMS.minContribution,
+        INFORMER_PARAMS.maxContribution,
+        INFORMER_PARAMS.kAnonymityFloor,
+        label32(INFORMER_PARAMS.informerLabel),
+        label32(INFORMER_PARAMS.periodLabel),
         hex32(PROVENANCE.policyHash),
         hex32(PROVENANCE.circuitCommitment),
       ],
@@ -100,13 +100,13 @@ $('deploy').addEventListener('click', async () => {
   }
 });
 
-// Surface the cohort parameters this page would deploy, before anything runs.
+// Surface the informer parameters this page would deploy, before anything runs.
 $('params').textContent = [
-  `bucket width      ${FIRST_COHORT.bucketWidth}`,
-  `band              ${FIRST_COHORT.minContribution} to ${FIRST_COHORT.maxContribution}`,
-  `k-anonymity floor ${FIRST_COHORT.kAnonymityFloor}`,
-  `cohort            ${FIRST_COHORT.cohortLabel}`,
-  `period            ${FIRST_COHORT.periodLabel}`,
+  `bucket width      ${INFORMER_PARAMS.bucketWidth}`,
+  `band              ${INFORMER_PARAMS.minContribution} to ${INFORMER_PARAMS.maxContribution}`,
+  `k-anonymity floor ${INFORMER_PARAMS.kAnonymityFloor}`,
+  `informer id       ${INFORMER_PARAMS.informerLabel}`,
+  `period            ${INFORMER_PARAMS.periodLabel}`,
   `policy hash       ${PROVENANCE.policyHash.slice(0, 24)}...`,
   `circuit commit    ${PROVENANCE.circuitCommitment.slice(0, 24)}...`,
 ].join('\n');
