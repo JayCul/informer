@@ -109,6 +109,20 @@ that could be correlated across scopes.
 
 ---
 
+## Signing: no private key lives in this project
+
+Deployment and contributions are signed by the Lace extension through the
+Midnight DApp connector. The page asks Lace to balance and submit a
+transaction; it cannot read a key.
+
+There is deliberately no seed phrase in this repo, in `.env`, or in any
+environment variable. A deploy key sitting in a dotfile is a hot key, and the
+project does not need one. `.env` holds only public addresses and the local
+proof server URL, and is gitignored so a public repo does not permanently link
+a GitHub account to a wallet.
+
+---
+
 ## Honest limitations
 
 These are stated deliberately rather than left for a reviewer to discover.
@@ -147,7 +161,12 @@ compact update 0.31
 compact compile src/cohort.compact managed/cohort
 npm install
 npm test
+npm run preflight   # checks artifacts, toolchain pinning, proof server, indexer, node
+npm run dev         # serves the DApp on http://localhost:5173
 ```
+
+The DApp needs the Lace extension, unlocked and set to Preprod, plus a running
+proof server.
 
 ### Toolchain version, and why it is pinned
 
