@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cohort</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b0d12;
+        --panel: #12151d;
+        --line: #232838;
+        --text: #e6e9f0;
+        --muted: #8b93a7;
+        --ok: #4ade80;
+        --err: #f87171;
+        --accent: #a78bfa;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+        padding: 40px 20px;
+      }
+      main { max-width: 720px; margin: 0 auto; }
+      h1 { font-size: 28px; margin: 0 0 4px; letter-spacing: -0.02em; }
+      .tagline { color: var(--muted); margin: 0 0 28px; }
+      section {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 18px 20px;
+        margin-bottom: 16px;
+      }
+      h2 {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        margin: 0 0 12px;
+        font-weight: 600;
+      }
+      button {
+        background: var(--accent);
+        color: #14101f;
+        border: 0;
+        border-radius: 7px;
+        padding: 10px 18px;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:disabled { opacity: 0.4; cursor: not-allowed; }
+      pre, .mono {
+        font: 12.5px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace;
+        white-space: pre-wrap;
+        word-break: break-all;
+        margin: 0;
+        color: var(--muted);
+      }
+      dl { display: grid; grid-template-columns: 116px 1fr; gap: 6px 12px; margin: 0; }
+      dt { color: var(--muted); font-size: 12.5px; }
+      dd { margin: 0; }
+      .knows { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+      .knows ul { margin: 0; padding-left: 18px; }
+      .knows li { font-size: 13.5px; margin-bottom: 3px; }
+      .yes li::marker { content: '✓  '; color: var(--ok); }
+      .no li::marker { content: '✗  '; color: var(--err); }
+      #log { max-height: 220px; overflow-y: auto; }
+      .line { font: 12.5px/1.6 ui-monospace, Consolas, monospace; }
+      .line.ok { color: var(--ok); }
+      .line.err { color: var(--err); }
+      .line.info { color: var(--muted); }
+      [hidden] { display: none !important; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Cohort</h1>
+      <p class="tagline">Know where you stand without revealing where you are.</p>
+
+      <section>
+        <h2>What the contract learns</h2>
+        <div class="knows">
+          <ul class="yes">
+            <li>A valid contribution was made</li>
+            <li>By an eligible participant</li>
+            <li>Falling in a given band</li>
+            <li>Whose nullifier was unused</li>
+          </ul>
+          <ul class="no">
+            <li>Who contributed</li>
+            <li>The actual figure</li>
+            <li>Any wallet-to-person link</li>
+            <li>Anything reusable across periods</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>Cohort parameters</h2>
+        <pre id="params"></pre>
+      </section>
+
+      <section>
+        <h2>Wallet</h2>
+        <button id="connect">Connect wallet</button>
+        <div id="wallet-info" hidden style="margin-top: 14px">
+          <dl>
+            <dt>Shielded</dt><dd class="mono" id="addr-shielded"></dd>
+            <dt>Unshielded</dt><dd class="mono" id="addr-unshielded"></dd>
+            <dt>Dust</dt><dd class="mono" id="addr-dust"></dd>
+            <dt>Dust balance</dt><dd class="mono" id="dust-balance"></dd>
+          </dl>
+        </div>
+      </section>
+
+      <section>
+        <h2>Deploy to Preprod</h2>
+        <button id="deploy" disabled>Deploy Cohort</button>
+        <div id="deployed" hidden style="margin-top: 14px">
+          <dl>
+            <dt>Contract</dt><dd class="mono" id="contract-address"></dd>
+          </dl>
+        </div>
+      </section>
+
+      <section>
+        <h2>Log</h2>
+        <div id="log"></div>
+      </section>
+    </main>
+    <script type="module" src="/app/main.js"></script>
+  </body>
+</html>
