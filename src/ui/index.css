@@ -2,25 +2,68 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * One token set, two themes. Components never name a colour directly, so the
+ * switch is a class on <html> rather than a second set of styles to maintain.
+ */
 @layer base {
-  :root { color-scheme: dark; }
-  body {
-    @apply bg-ink text-bone antialiased;
-    font-feature-settings: 'ss01', 'cv01';
+  :root {
+    --bg: 247 248 250;
+    --surface: 255 255 255;
+    --raised: 255 255 255;
+    --text: 11 13 14;
+    --muted: 107 114 128;
+    --accent: 132 176 20;      /* deeper lime: #84B014, legible on white */
+    --accent-ink: 255 255 255; /* text on an accent fill */
+    --line: 0 0 0 / 0.09;
+    --dot: 0 0 0 / 0.10;
+    --shadow: 0 0 0 / 0.10;
+    color-scheme: light;
   }
-  ::selection { @apply bg-volt text-ink; }
-  :focus-visible { @apply outline-none ring-2 ring-volt ring-offset-2 ring-offset-ink; }
+
+  .dark {
+    --bg: 11 13 14;
+    --surface: 19 22 23;
+    --raised: 24 28 29;
+    --text: 245 245 240;
+    --muted: 143 148 150;
+    --accent: 199 255 61;      /* #C7FF3D */
+    --accent-ink: 11 13 14;
+    --line: 255 255 255 / 0.10;
+    --dot: 255 255 255 / 0.10;
+    --shadow: 0 0 0 / 0.55;
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-canvas text-ink antialiased;
+    font-feature-settings: 'ss01', 'cv01';
+    transition: background-color 240ms ease, color 240ms ease;
+  }
+  ::selection { background: rgb(var(--accent)); color: rgb(var(--accent-ink)); }
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent));
+    outline-offset: 2px;
+  }
 }
 
 @layer components {
-  /* Barely-there technical grid. Meant to be noticed second, not first. */
-  .grid-field {
-    background-image:
-      linear-gradient(to right, rgba(255,255,255,0.028) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255,255,255,0.028) 1px, transparent 1px);
-    background-size: 72px 72px;
+  /* The dotted field from the reference. Present, not noticed. */
+  .dot-field {
+    background-image: radial-gradient(rgb(var(--dot)) 1px, transparent 1px);
+    background-size: 22px 22px;
   }
-  .rule { @apply border-t border-line; }
+  .card {
+    background: rgb(var(--raised));
+    border: 1px solid rgb(var(--line));
+    box-shadow: 0 1px 2px rgb(var(--shadow)), 0 12px 32px -12px rgb(var(--shadow));
+    @apply rounded-2xl;
+  }
+  .float-card {
+    @apply card absolute hidden lg:block;
+    transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .float-card:hover { transform: translateY(-6px) rotate(0deg) !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {

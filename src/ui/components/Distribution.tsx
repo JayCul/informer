@@ -59,12 +59,12 @@ export default function Distribution({ state, highlight = null }: Props) {
                 transition={{ duration: 0.7, delay: i * 0.035, ease: [0.22, 1, 0.36, 1] }}
                 className={[
                   'w-full rounded-[2px]',
-                  empty ? 'bg-bone/25' : isHit ? 'bg-volt' : 'bg-volt/55',
-                  isHit ? 'shadow-[0_0_24px_rgba(199,255,61,0.45)]' : '',
+                  empty ? 'bg-ink/10' : isHit ? 'bg-volt' : 'bg-volt/60',
+                  isHit ? 'ring-2 ring-volt/40' : '',
                   'group-hover:bg-volt transition-colors',
                 ].join(' ')}
               />
-              <span className="mt-2 text-[10px] font-mono text-muted/70 tabular-nums">
+              <span className="mt-2 text-[10px] font-mono text-muted tabular-nums">
                 {short(b.index * width)}
               </span>
             </div>
@@ -72,7 +72,7 @@ export default function Distribution({ state, highlight = null }: Props) {
         })}
       </div>
 
-      <div className="mt-6 rule pt-4 flex flex-wrap gap-x-10 gap-y-2">
+      <div className="mt-6 border-t border-line pt-4 flex flex-wrap gap-x-10 gap-y-2">
         <Stat label="Contributions" value={String(state.contributionCount)} />
         <Stat label="Unique participants" value={String(state.nullifierCount)} />
         <Stat label="Bands populated" value={String(state.buckets.length)} />

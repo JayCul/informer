@@ -35,7 +35,7 @@ export default function Contribute({
           <span className="block text-[10px] uppercase tracking-[0.14em] text-muted mb-2">
             Annual total compensation
           </span>
-          <div className="flex items-center gap-2 border border-line rounded-lg bg-ink px-4 py-3 focus-within:border-volt/60 transition-colors">
+          <div className="flex items-center gap-2 border border-line rounded-lg bg-canvas px-4 py-3 focus-within:border-volt/60 transition-colors">
             <span className="text-muted font-mono text-sm">$</span>
             <input
               type="number" inputMode="numeric" value={value}
@@ -50,7 +50,7 @@ export default function Contribute({
 
         <button
           onClick={() => onSubmit(raw)} disabled={!ready}
-          className="inline-flex items-center gap-2 rounded-lg bg-volt px-6 py-3.5 font-semibold text-ink
+          className="inline-flex items-center gap-2 rounded-lg bg-volt px-6 py-3.5 font-semibold text-volt-ink
                      disabled:opacity-30 disabled:cursor-not-allowed hover:brightness-110 transition"
         >
           {busy ? 'Proving…' : 'Contribute privately'}
@@ -61,7 +61,7 @@ export default function Contribute({
           <button
             onClick={onForget}
             className="inline-flex items-center gap-2 rounded-lg border border-line px-4 py-3.5 text-sm text-muted
-                       hover:text-bone hover:border-bone/30 transition"
+                       hover:text-ink hover:border-ink/20 transition"
             title="Deletes the contributor secret stored in this browser. Changes nothing on chain."
           >
             <Trash2 size={14} aria-hidden /> Reset local identity
@@ -105,12 +105,12 @@ export default function Contribute({
             key="rejected"
             initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.45 }}
-            className="mt-8 rounded-xl border border-volt/40 bg-volt/[0.06] p-6"
+            className="mt-8 rounded-xl border border-volt/40 bg-volt/10 p-6"
           >
             <div className="flex items-center gap-2 text-volt font-semibold">
               <ShieldAlert size={16} aria-hidden /> Contribution rejected
             </div>
-            <p className="mt-2 text-sm text-bone/90 max-w-2xl leading-relaxed">{rejection}</p>
+            <p className="mt-2 text-sm text-ink/90 max-w-2xl leading-relaxed">{rejection}</p>
             <p className="mt-3 text-sm text-muted max-w-2xl leading-relaxed">
               This is the whole idea. One person, one contribution, enforced by a nullifier
               that is a one-way hash of a secret the contract never receives. It knows you
@@ -147,7 +147,7 @@ function Row({ k, v, redacted, mono }: { k: string; v: string; redacted?: boolea
   return (
     <div>
       <dt className="text-[11px] text-muted">{k}</dt>
-      <dd className={`mt-0.5 ${mono ? 'font-mono text-xs' : 'text-sm'} ${redacted ? 'text-bone' : 'text-bone/85'}`}>
+      <dd className={`mt-0.5 ${mono ? 'font-mono text-xs' : 'text-sm'} ${redacted ? 'text-ink' : 'text-ink/85'}`}>
         {redacted ? <span className="line-through decoration-red-400/70 decoration-2">{v}</span> : v}
         {redacted && <span className="ml-2 text-[11px] text-muted">never sent</span>}
       </dd>
