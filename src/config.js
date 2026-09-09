@@ -12,6 +12,11 @@ export const PREPROD = {
   proofServer: 'http://127.0.0.1:6300',
 };
 
+// The deployed Informer on Preprod. Verify with:
+//   node scripts/find-contract.mjs 7c4f5fcc486dc6e36ee13003173d1d2186170bdbb00292f9c403182d52c718b5
+export const CONTRACT_ADDRESS =
+  '7c4f5fcc486dc6e36ee13003173d1d2186170bdbb00292f9c403182d52c718b5';
+
 // Informer parameters for the first live informer.
 // Bands are USD-major-units; 10_000 gives $10k buckets.
 export const INFORMER_PARAMS = {
