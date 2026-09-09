@@ -214,6 +214,27 @@ npm run dev         # serves the DApp on http://localhost:5173
 The DApp needs the Lace extension, unlocked and set to Preprod, plus a running
 proof server.
 
+### The proof server, and why the hosted demo needs one
+
+Proofs are generated locally, never on a server. That is the point, and it is
+also the one thing a hosted page cannot do for you.
+
+The deployed demo therefore checks for a proof server on `127.0.0.1:6300` and
+says so plainly when it is missing. Everything that does not need proving still
+works without it: the live distribution, the contribution count, the
+k-anonymity progress, and the whole privacy explanation are read straight from
+the indexer with no wallet and no proof server.
+
+To contribute, run:
+
+```bash
+docker run -p 6300:6300 midnightntwrk/proof-server:8.1.0 midnight-proof-server -v
+```
+
+then press "Check again" on the page. A browser will happily reach
+`http://127.0.0.1` from an HTTPS page, because localhost counts as a
+trustworthy origin and is not treated as mixed content.
+
 ### On Windows: `compact` is not the Compact compiler
 
 PowerShell and CMD already have a built-in `compact.exe`, the NTFS file
