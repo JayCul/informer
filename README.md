@@ -109,6 +109,52 @@ that could be correlated across scopes.
 
 ---
 
+## The privacy claim
+
+Stated narrowly enough to be tested, and no wider.
+
+**Claim.** For each contribution, the network verifies that a participant
+holding an unspent credential for this Informer and period contributed a figure
+inside the published band, and that the figure falls in the band index recorded,
+without the network, the contract, or any observer learning the figure or the
+participant's identity.
+
+### What backs it
+
+| Claim | Mechanism | Where to look |
+|---|---|---|
+| The figure never reaches the chain | `rawContribution()` is a witness, consumed inside the circuit and never disclosed | `src/informer.compact` |
+| The band is truthful | `bucket * width <= raw < (bucket+1) * width`, so exactly one index satisfies it | `contribute` circuit |
+| The figure is inside the band | `raw >= minContribution`, `raw <= maxContribution` | `contribute` circuit |
+| One contribution per participant per period | nullifier membership check before insert | `spentNullifiers` |
+| Nullifiers do not correlate across scopes | `persistentHash([secret, informerId, period])` | `contribute` circuit |
+| The secret never leaves the device | held in encrypted local private state, only ever hashed | `app/privateStorage.js` |
+
+### How to observe it
+
+1. Contribute a figure. The log shows the circuit proving and submitting.
+2. Read the public state. The count and one band increment. No figure appears
+   anywhere in ledger state, because there is no field that could hold one.
+3. Contribute again from the same browser. It is rejected as
+   `already contributed in this period`. The contract enforced uniqueness
+   without ever learning who the participant is.
+
+Step 3 is the observable privacy behaviour: something proven without being
+shown.
+
+### What the claim does not cover
+
+- **Truthfulness of the figure.** It is self reported. The circuit constrains
+  its internal consistency, not its correspondence to payroll.
+- **Sybil resistance.** The contributor secret is not yet bound to an issued
+  credential, so one person can generate several secrets. Until the eligibility
+  layer ships, "one contribution per participant" means one per secret.
+- **Traffic analysis.** Bucket increments are public and timestamped. An
+  observer who knows when a specific person contributed can learn something
+  from the increment that follows.
+
+---
+
 ## Signing: no private key lives in this project
 
 Deployment and contributions are signed by the Lace extension through the
