@@ -8,6 +8,9 @@ import ThemeToggle from './components/ThemeToggle';
 import Hero from './components/Hero';
 import Distribution from './components/Distribution';
 import Contribute from './components/Contribute';
+import Position from './components/Position';
+import HowItWorks from './components/HowItWorks';
+import Reveal from './components/Reveal';
 import { CONTRACT_ADDRESS, INFORMER_PARAMS, PROVENANCE } from '../config.js';
 
 const REPO = 'https://github.com/JayCul/informer';
@@ -72,8 +75,36 @@ export default function App() {
           </section>
         )}
 
-        <div ref={contributeRef} className="scroll-mt-20" />
+        {/* Where you stand: the answer before the ask ---------------------- */}
         <section className="py-20">
+          <Reveal>
+            <SectionHead
+              eyebrow="Where you stand"
+              title="Find your position first"
+              body="No wallet, no account, nothing transmitted. See where a figure sits in the published distribution, then decide whether to add it."
+            />
+          </Reveal>
+          <Reveal delay={0.08} className="mt-10">
+            <Position state={m.state} onContribute={() => scrollTo(contributeRef)} />
+          </Reveal>
+        </section>
+
+        {/* How it works ------------------------------------------------------ */}
+        <section className="py-20 border-t border-line">
+          <Reveal>
+            <SectionHead
+              eyebrow="How it works"
+              title="Enter, prove, spend once"
+              body="Three stages. The third is the one worth understanding: a repeat contribution is refused by a contract that never learned who you are."
+            />
+          </Reveal>
+          <div className="mt-10">
+            <HowItWorks />
+          </div>
+        </section>
+
+        <div ref={contributeRef} className="scroll-mt-20" />
+        <section className="py-20 border-t border-line">
           <SectionHead
             eyebrow="Contribute"
             title="Add one private data point"
@@ -97,11 +128,11 @@ export default function App() {
 
         <div ref={chainRef} className="scroll-mt-20" />
         <section className="py-20 border-t border-line">
-          <SectionHead
+          <Reveal><SectionHead
             eyebrow="Public state"
             title="What the chain actually holds"
             body="Read straight from ledger state. Bands and counts, and nothing that could identify a contributor."
-          />
+          /></Reveal>
           <div className="mt-10 card p-7">
             <Distribution state={m.state} highlight={m.receipt?.bucket ?? null} />
             {m.state && !floorMet && (
@@ -115,11 +146,11 @@ export default function App() {
         </section>
 
         <section className="py-20 border-t border-line">
-          <SectionHead
+          <Reveal><SectionHead
             eyebrow="Privacy model"
             title="What an observer can and cannot learn"
             body="Assume the strongest realistic adversary: someone reading every block, running their own indexer, holding the contract source."
-          />
+          /></Reveal>
           <div className="mt-10 grid md:grid-cols-2 gap-6">
             <Column title="Can learn" tone="muted" items={[
               'That a contribution occurred, and when',
