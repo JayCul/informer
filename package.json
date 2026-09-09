@@ -39,5 +39,8 @@
     "@midnight-ntwrk/midnight-js-types": "^4.1.1",
     "@midnight-ntwrk/wallet-sdk": "^1.2.0",
     "dotenv": "^17.4.2"
+  },
+  "overrides": {
+    "@midnight-ntwrk/onchain-runtime-v3": "3.0.0"
   }
 }

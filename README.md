@@ -217,6 +217,23 @@ npm run dev         # serves the DApp on http://localhost:5173
 The DApp needs the Lace extension, unlocked and set to Preprod, plus a running
 proof server.
 
+### Why `overrides` pins the onchain runtime
+
+`package.json` forces `@midnight-ntwrk/onchain-runtime-v3` to `3.0.0`. Without
+it, npm installs two versions: `compact-runtime` asks for `^3.0.0` and resolves
+to `3.1.1`, while `midnight-js-protocol` pins `3.0.0` exactly. The dev server
+tolerates that. A production build does not: the bundle ends up with two copies
+of the runtime WASM, and a class built by one fails an `instanceof` check in the
+other, surfacing as
+
+```
+Error: expected instance of dn
+  at [@midnight-ntwrk/midnight-js#Transaction/MergeUnsubmittedCallTxData]
+```
+
+The tell is the build output listing two `midnight_onchain_runtime_wasm_bg-*.wasm`
+files of different sizes. After the override and `npm dedupe`, there is one.
+
 ### The proof server, and why the hosted demo needs one
 
 Proofs are generated locally, never on a server. That is the point, and it is
