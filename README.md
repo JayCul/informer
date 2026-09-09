@@ -1,5 +1,7 @@
 # Informer
 
+[![CI](https://github.com/JayCul/informer/actions/workflows/ci.yml/badge.svg)](https://github.com/JayCul/informer/actions/workflows/ci.yml)
+
 **Know where you stand without revealing where you are.**
 
 Informer is a privacy-preserving contribution primitive on Midnight. Eligible
@@ -13,6 +15,7 @@ compensation specific.
 
 **Live demo:** https://informer-v1.vercel.app
 **Demo video:** https://youtu.be/kfo0uWB3zvY
+**Proposal:** [PROPOSAL.md](PROPOSAL.md) (Anonymous Feedback / Survey)
 **Preprod contract:** `7c4f5fcc486dc6e36ee13003173d1d2186170bdbb00292f9c403182d52c718b5`
 
 ---
@@ -110,6 +113,49 @@ Binding the nullifier to the Informer and the period means the same participant
 produces an unrelated nullifier in a different Informer or a different period.
 That gives uniqueness per scope without creating a reusable public identifier
 that could be correlated across scopes.
+
+---
+
+## Privacy model: what an observer can and cannot learn
+
+"Observer" here is the strongest realistic adversary: someone who reads the
+entire chain, watches every block as it is produced, runs their own indexer, and
+has the contract source and this README.
+
+### What an observer can learn
+
+| Observable | Why it is public |
+|---|---|
+| That a contribution occurred, and when | Transactions are public |
+| Which band it fell in | The band index is the aggregate; it is the product |
+| The running distribution and contribution count | Same |
+| That each contribution came from a distinct unspent nullifier | Prevents duplicates |
+| The survey parameters, policy hash and circuit commitment | Written at deploy so participants can audit the terms |
+| The wallet that submitted, and its fee payments | Ordinary chain visibility |
+
+### What an observer cannot learn
+
+| Not observable | Why |
+|---|---|
+| Anyone's compensation figure | It is a witness. No ledger field can hold it, so it is absent rather than hidden |
+| Who a contribution belongs to | The nullifier is a one-way hash of a secret the contract never receives |
+| Whether two contributions in different periods are the same person | Nullifiers are scoped by survey and period, so they do not correlate |
+| The contributor secret, or anything derived from it besides one nullifier | It stays in encrypted local private state |
+| Whether a given person has contributed at all | There is no membership list to query |
+
+### The honest edges
+
+- **A submitting wallet is visible.** The chain does not link it to a figure or
+  a nullifier, but an observer who already knows a wallet belongs to a person
+  learns that person contributed to this survey.
+- **Timing correlation.** Band increments are public and timestamped. An
+  observer who knows when a specific person contributed can associate them with
+  the increment that follows.
+- **Small distributions leak.** At three contributions the distribution is close
+  to individual data. `kAnonymityFloor` is published for this reason, though the
+  contract does not yet gate reads on it.
+- **One narrow inference is intended.** Learning "someone eligible earns between
+  70,000 and 80,000" is the product working, not a leak.
 
 ---
 
