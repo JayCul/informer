@@ -11,6 +11,7 @@ import {
   decodeFromWallet,
   watchIdentifier,
 } from './txcodec.js';
+import { describeError } from './instrument.js';
 
 const NETWORK_ID = PREPROD.networkId;
 
@@ -84,7 +85,14 @@ export async function connectLace() {
     // explicitly not, because transactions can be merged.
     submitTx: async (tx) => {
       const identifier = watchIdentifier(tx);
-      await api.submitTransaction(encodeForWallet(tx));
+      try {
+        await api.submitTransaction(encodeForWallet(tx));
+      } catch (err) {
+        // The connector rejects with plain objects. Preserve the detail and
+        // the original, rather than letting it collapse to [object Object].
+        const detail = describeError(err);
+        throw new Error(`Wallet rejected the submission: ${detail}`, { cause: err });
+      }
       return identifier;
     },
   };

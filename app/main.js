@@ -16,6 +16,7 @@ import {
   traceObject,
   installGlobalErrorLogging,
   installFetchLogging,
+  describeError,
 } from './instrument.js';
 import { contribute, readPublicState, PRIVATE_STATE_ID } from './contribute.js';
 import { checkProofServer, PROOF_SERVER_COMMAND } from './proofServer.js';
@@ -226,7 +227,7 @@ $('contribute').addEventListener('click', async () => {
     let cause = err.cause;
     let depth = 0;
     while (cause && depth < 3) {
-      log(`cause[${depth}]: ${cause.name ?? 'Error'}: ${cause.message ?? String(cause)}`, 'err');
+      log(`cause[${depth}]: ${describeError(cause)}`, 'err');
       const frames = String(cause.stack ?? '')
         .split(String.fromCharCode(10))
         .filter((l) => l.includes('at '))

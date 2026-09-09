@@ -4,6 +4,43 @@
 // provider failed. These wrappers log every provider call as it starts and
 // finishes, so a failure names the exact call and carries a real stack.
 
+/**
+ * Renders anything thrown into something readable. The DApp connector rejects
+ * with plain objects, which stringify to "[object Object]" and lose every
+ * field that would explain the failure.
+ */
+export function describeError(err) {
+  if (err == null) return String(err);
+  if (typeof err === 'string') return err;
+  if (err instanceof Error && err.message) return `${err.name}: ${err.message}`;
+
+  const parts = [];
+  for (const key of ['name', 'message', 'code', 'reason', 'detail', 'error', 'status']) {
+    if (err[key] != null && typeof err[key] !== 'object') {
+      parts.push(`${key}=${err[key]}`);
+    }
+  }
+  if (parts.length) return parts.join(' ');
+
+  try {
+    const seen = new WeakSet();
+    const json = JSON.stringify(
+      err,
+      (_k, v) => {
+        if (typeof v === 'object' && v !== null) {
+          if (seen.has(v)) return '[circular]';
+          seen.add(v);
+        }
+        return typeof v === 'bigint' ? String(v) : v;
+      },
+    );
+    if (json && json !== '{}') return json.slice(0, 400);
+  } catch {
+    /* fall through */
+  }
+  return Object.prototype.toString.call(err);
+}
+
 /** Wraps one function, preserving sync vs async behaviour. */
 const traceFn = (label, fn, thisArg, log) =>
   function (...args) {
@@ -12,7 +49,7 @@ const traceFn = (label, fn, thisArg, log) =>
     try {
       out = fn.apply(thisArg ?? this, args);
     } catch (err) {
-      log(`XX ${label} threw: ${err.name}: ${err.message}`, 'err');
+      log(`XX ${label} threw: ${describeError(err)}`, 'err');
       console.error(label, err);
       throw err;
     }
@@ -23,7 +60,7 @@ const traceFn = (label, fn, thisArg, log) =>
           return value;
         },
         (err) => {
-          log(`XX ${label} rejected: ${err.name}: ${err.message}`, 'err');
+          log(`XX ${label} rejected: ${describeError(err)}`, 'err');
           console.error(label, err);
           throw err;
         },
