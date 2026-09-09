@@ -18,6 +18,7 @@ import {
   installFetchLogging,
 } from './instrument.js';
 import { contribute, readPublicState, PRIVATE_STATE_ID } from './contribute.js';
+import { checkProofServer, PROOF_SERVER_COMMAND } from './proofServer.js';
 
 // Must run before any wallet or contract operation. midnight-js keeps this as
 // module-level state and throws on first use if it was never set.
@@ -92,6 +93,47 @@ function buildProviders() {
   };
 }
 
+// --------------------------------------------------------- proof server ---
+
+let proofServerReady = false;
+
+async function refreshProofServer({ quiet = false } = {}) {
+  const banner = $('proof-banner');
+  const result = await checkProofServer();
+  proofServerReady = result.ok;
+
+  if (result.ok) {
+    banner.classList.add('ready');
+    $('proof-banner-title').textContent = 'Local proof server detected';
+    $('proof-banner-body').textContent =
+      `Proving will run on ${result.url}. Contributions are ready to submit.`;
+    $('proof-banner-cmd').hidden = true;
+    if (!quiet) log(`Proof server reachable at ${result.url}.`, 'ok');
+  } else {
+    banner.classList.remove('ready');
+    $('proof-banner-title').textContent = 'Local proof server not detected';
+    $('proof-banner-body').textContent =
+      `Reading the public distribution below needs nothing. Contributing needs a `
+      + `proof server running on your own machine, because proofs are generated `
+      + `locally and never on a server. ${result.url}: ${result.detail}. `
+      + `Start it with Docker, then check again.`;
+    $('proof-banner-cmd').hidden = false;
+    $('proof-banner-cmd').textContent = PROOF_SERVER_COMMAND;
+    if (!quiet) log(`Proof server unreachable (${result.detail}).`, 'err');
+  }
+  banner.hidden = false;
+  updateContributeEnabled();
+  return result.ok;
+}
+
+function updateContributeEnabled() {
+  $('contribute').disabled = !(session && proofServerReady);
+}
+
+$('proof-recheck').addEventListener('click', () => {
+  refreshProofServer().catch((err) => log(err.message, 'err'));
+});
+
 // ---------------------------------------------------------------- connect ---
 
 $('connect').addEventListener('click', async () => {
@@ -107,7 +149,7 @@ $('connect').addEventListener('click', async () => {
 
     $('wallet-info').hidden = false;
     $('disconnect').hidden = false;
-    $('contribute').disabled = false;
+    updateContributeEnabled();
     log(`Connected via ${session.connectorName}.`, 'ok');
   } catch (err) {
     log(err.message, 'err');
@@ -128,8 +170,8 @@ $('disconnect').addEventListener('click', () => {
   $('wallet-info').hidden = true;
   $('disconnect').hidden = true;
   $('privacy-proof').hidden = true;
-  $('contribute').disabled = true;
   $('connect').disabled = false;
+  updateContributeEnabled();
   log('Disconnected. Wallet handles and providers dropped.', 'ok');
 });
 
@@ -149,6 +191,12 @@ $('contribute').addEventListener('click', async () => {
 
   $('contribute').disabled = true;
   try {
+    // Re-check rather than trust a stale result: Docker may have stopped since
+    // the page loaded, and failing here is far clearer than failing mid-proof.
+    if (!(await refreshProofServer({ quiet: true }))) {
+      log('Cannot contribute: the local proof server is not running.', 'err');
+      return;
+    }
     const result = await contribute({ providers, raw, log });
 
     $('pp-raw').textContent = `${usd(raw)} — never transmitted`;
@@ -172,7 +220,7 @@ $('contribute').addEventListener('click', async () => {
       );
     }
   } finally {
-    $('contribute').disabled = session === null;
+    updateContributeEnabled();
   }
 });
 
@@ -234,6 +282,8 @@ $('params').textContent = [
   `circuit commit    ${PROVENANCE.circuitCommitment.slice(0, 24)}...`,
   `private state     ${PRIVATE_STATE_ID}`,
 ].join('\n');
+
+refreshProofServer({ quiet: true }).catch(() => {});
 
 // Public state needs no wallet, so show it immediately.
 refreshState().catch((err) => log(`Initial state read failed: ${err.message}`, 'err'));

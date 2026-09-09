@@ -81,6 +81,24 @@
       .line.err { color: var(--err); }
       .line.info { color: var(--muted); }
       .note { color: var(--muted); font-size: 13px; margin: 10px 0 0; }
+      .banner {
+        border: 1px solid rgba(248, 113, 113, 0.45);
+        background: rgba(248, 113, 113, 0.07);
+        border-radius: 10px; padding: 16px 20px; margin-bottom: 16px;
+      }
+      .banner.ready {
+        border-color: rgba(199, 255, 61, 0.4);
+        background: rgba(199, 255, 61, 0.06);
+      }
+      .banner h2 { color: var(--err); margin-bottom: 8px; }
+      .banner.ready h2 { color: var(--accent); }
+      .banner p { margin: 0 0 10px; font-size: 13.5px; }
+      .banner code {
+        display: block; background: #0b0d0e; border: 1px solid var(--line);
+        border-radius: 6px; padding: 10px 12px; margin-top: 8px;
+        font: 12px/1.5 ui-monospace, Consolas, monospace; color: var(--text);
+        overflow-x: auto; white-space: pre;
+      }
       [hidden] { display: none !important; }
       @media (max-width: 640px) {
         .knows, .split { grid-template-columns: 1fr; }
@@ -91,6 +109,15 @@
     <main>
       <h1>Informer</h1>
       <p class="tagline">Know where you stand without revealing where you are.</p>
+
+      <div id="proof-banner" class="banner" hidden role="status">
+        <h2 id="proof-banner-title">Local proof server not detected</h2>
+        <p id="proof-banner-body"></p>
+        <code id="proof-banner-cmd"></code>
+        <div class="row" style="margin-top: 12px">
+          <button id="proof-recheck" class="ghost">Check again</button>
+        </div>
+      </div>
 
       <section>
         <h2>What the contract learns</h2>
