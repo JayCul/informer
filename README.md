@@ -145,6 +145,21 @@ participant's identity.
 Step 3 is the observable privacy behaviour: something proven without being
 shown.
 
+To run the sequence again, "Forget local secret" deletes the contributor secret
+held in this browser, so the next contribution is accepted rather than rejected.
+It changes nothing on chain. That button is only possible because of the sybil
+gap below: the secret is not yet bound to an issued credential, so a new one can
+simply be generated. It exists to make the demo repeatable, and is labelled as
+what it is rather than dressed up as account management.
+
+### What cannot be reset
+
+Contributions and nullifiers are on a public append-only ledger. There is no
+circuit that removes them, and adding one would defeat the point: an aggregate
+whose owner can delete inconvenient data points is not evidence of anything.
+Starting a genuinely empty distribution means deploying a new Informer, which
+gets a new contract address and its own count.
+
 ### What the claim does not cover
 
 - **Truthfulness of the figure.** It is self reported. The circuit constrains

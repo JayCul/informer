@@ -158,6 +158,10 @@
           <input id="salary" type="number" min="10000" max="1000000" step="1000"
                  value="72000" aria-label="Annual total compensation in USD" />
           <button id="contribute" disabled>Contribute</button>
+          <button id="forget" class="ghost" disabled
+                  title="Deletes the contributor secret held in this browser">
+            Forget local secret
+          </button>
         </div>
         <p class="note">
           The figure is written to local private state, read by a witness inside

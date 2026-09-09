@@ -135,6 +135,7 @@ async function refreshProofServer({ quiet = false } = {}) {
 
 function updateContributeEnabled() {
   $('contribute').disabled = !(session && proofServerReady);
+  $('forget').disabled = !session;
 }
 
 $('proof-recheck').addEventListener('click', () => {
@@ -243,6 +244,28 @@ $('contribute').addEventListener('click', async () => {
     }
   } finally {
     updateContributeEnabled();
+  }
+});
+
+// --------------------------------------------------------- forget secret ---
+
+$('forget').addEventListener('click', async () => {
+  if (!providers) {
+    log('Connect a wallet first.', 'err');
+    return;
+  }
+  $('forget').disabled = true;
+  try {
+    providers.privateStateProvider.setContractAddress(CONTRACT_ADDRESS);
+    await providers.privateStateProvider.remove(PRIVATE_STATE_ID);
+    $('privacy-proof').hidden = true;
+    log('Local contributor secret deleted. The next contribution generates a new one and will be accepted.', 'ok');
+    // Worth being explicit: this is the documented sybil gap, not a feature.
+    log('Nothing on chain changed. The ledger is append only, and holds no record of you that could be removed.');
+  } catch (err) {
+    log(`Could not clear local secret: ${err.message}`, 'err');
+  } finally {
+    $('forget').disabled = session === null;
   }
 });
 
