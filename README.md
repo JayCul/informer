@@ -11,6 +11,9 @@ distribution.
 Compensation is the first contribution category. The contract is not
 compensation specific.
 
+**Live demo:** https://informer-v1.vercel.app
+**Preprod contract:** `7c4f5fcc486dc6e36ee13003173d1d2186170bdbb00292f9c403182d52c718b5`
+
 ---
 
 ## The idea
@@ -231,9 +234,18 @@ To contribute, run:
 docker run -p 6300:6300 midnightntwrk/proof-server:8.1.0 midnight-proof-server -v
 ```
 
-then press "Check again" on the page. A browser will happily reach
-`http://127.0.0.1` from an HTTPS page, because localhost counts as a
-trustworthy origin and is not treated as mixed content.
+then press "Check again" on the page.
+
+There is a second step on the hosted demo that is easy to miss. A page served
+over HTTPS reaching `http://127.0.0.1` is a local network request, and Chrome
+asks permission for it:
+
+> informer-v1.vercel.app wants to **access other apps and services on this device**
+
+That has to be allowed. Denied or dismissed, the request fails with
+`ERR_BLOCKED_BY_CLIENT` and the page reports the proof server as missing even
+though it is running. The banner names both causes rather than only the obvious
+one.
 
 ### On Windows: `compact` is not the Compact compiler
 

@@ -112,11 +112,18 @@ async function refreshProofServer({ quiet = false } = {}) {
   } else {
     banner.classList.remove('ready');
     $('proof-banner-title').textContent = 'Local proof server not detected';
+    const hosted = window.location.protocol === 'https:';
     $('proof-banner-body').textContent =
       `Reading the public distribution below needs nothing. Contributing needs a `
       + `proof server running on your own machine, because proofs are generated `
       + `locally and never on a server. ${result.url}: ${result.detail}. `
-      + `Start it with Docker, then check again.`;
+      + (hosted
+        ? `Two things cause this. Either the proof server is not running, or the `
+          + `browser has not been allowed to reach it: Chrome asks whether this `
+          + `site may "access other apps and services on this device", and that `
+          + `has to be allowed. Start the server with the command below, allow `
+          + `the prompt, then check again.`
+        : `Start it with the command below, then check again.`);
     $('proof-banner-cmd').hidden = false;
     $('proof-banner-cmd').textContent = PROOF_SERVER_COMMAND;
     if (!quiet) log(`Proof server unreachable (${result.detail}).`, 'err');
