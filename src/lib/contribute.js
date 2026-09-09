@@ -6,8 +6,8 @@
 import { findDeployedContract } from '@midnight-ntwrk/midnight-js-contracts';
 import { CompiledContract } from '@midnight-ntwrk/compact-js';
 
-import { Contract, ledger } from '../managed/informer/contract/index.js';
-import { CONTRACT_ADDRESS, INFORMER_PARAMS } from '../src/config.js';
+import { Contract, ledger } from '../../managed/informer/contract/index.js';
+import { CONTRACT_ADDRESS, INFORMER_PARAMS } from '../config.js';
 
 export const PRIVATE_STATE_ID = 'informer';
 

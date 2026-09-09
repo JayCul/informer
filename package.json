@@ -15,9 +15,16 @@
     "build": "npm run sync:zk && npm run provenance && vite build",
     "preview": "vite preview",
     "provenance": "node scripts/provenance.js",
-    "verify": "node scripts/verify.mjs"
+    "verify": "node scripts/verify.mjs",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "autoprefixer": "^10.5.5",
+    "postcss": "^8.5.28",
+    "tailwindcss": "^3.4.19",
     "typescript": "^5.6.3",
     "vite": "^5.4.21",
     "vite-plugin-node-polyfills": "^0.28.0",
@@ -38,7 +45,11 @@
     "@midnight-ntwrk/midnight-js-node-zk-config-provider": "^4.1.1",
     "@midnight-ntwrk/midnight-js-types": "^4.1.1",
     "@midnight-ntwrk/wallet-sdk": "^1.2.0",
-    "dotenv": "^17.4.2"
+    "dotenv": "^17.4.2",
+    "framer-motion": "^13.2.0",
+    "lucide-react": "^1.43.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   },
   "overrides": {
     "@midnight-ntwrk/onchain-runtime-v3": "3.0.0"

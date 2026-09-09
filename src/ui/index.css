@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root { color-scheme: dark; }
+  body {
+    @apply bg-ink text-bone antialiased;
+    font-feature-settings: 'ss01', 'cv01';
+  }
+  ::selection { @apply bg-volt text-ink; }
+  :focus-visible { @apply outline-none ring-2 ring-volt ring-offset-2 ring-offset-ink; }
+}
+
+@layer components {
+  /* Barely-there technical grid. Meant to be noticed second, not first. */
+  .grid-field {
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.028) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.028) 1px, transparent 1px);
+    background-size: 72px 72px;
+  }
+  .rule { @apply border-t border-line; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

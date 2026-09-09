@@ -7,7 +7,7 @@
 //
 // Rather than let a contribution fail somewhere deep in the provider stack, the
 // page checks up front and says exactly what is missing.
-import { PREPROD } from '../src/config.js';
+import { PREPROD } from '../config.js';
 
 export const PROOF_SERVER_COMMAND =
   'docker run -p 6300:6300 midnightntwrk/proof-server:8.1.0 midnight-proof-server -v';

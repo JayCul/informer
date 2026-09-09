@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import wasm from 'vite-plugin-wasm';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   // level-private-state-provider reaches for Node builtins (events, stream,
@@ -9,7 +10,7 @@ export default defineConfig({
   // No top-level-await plugin: the build targets esnext, where browsers
   // support top-level await natively. The plugin's SWC pass fails on this
   // dependency graph and is not needed at this target.
-  plugins: [nodePolyfills(), wasm()],
+  plugins: [react(), nodePolyfills(), wasm()],
   server: { port: 5173 },
   optimizeDeps: {
     // The WASM packages must not be pre-bundled; esbuild cannot handle their
