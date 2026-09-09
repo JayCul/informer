@@ -2,22 +2,22 @@ import { FetchZkConfigProvider } from '@midnight-ntwrk/midnight-js-fetch-zk-conf
 import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-public-data-provider';
 import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client-proof-provider';
 import { levelPrivateStateProvider } from '@midnight-ntwrk/midnight-js-level-private-state-provider';
-import { deployContract } from '@midnight-ntwrk/midnight-js-contracts';
 import { setNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
-import { CompiledContract } from '@midnight-ntwrk/compact-js';
 
-import { Contract } from '../managed/informer/contract/index.js';
-import { PREPROD, INFORMER_PARAMS, PROVENANCE, label32, hex32 } from '../src/config.js';
-import { connectLace } from './lace.js';
 import {
-  browserPasswordProvider,
-  passwordIsPersistent,
-} from './privateStorage.js';
+  PREPROD,
+  INFORMER_PARAMS,
+  PROVENANCE,
+  CONTRACT_ADDRESS,
+} from '../src/config.js';
+import { connectLace } from './lace.js';
+import { browserPasswordProvider } from './privateStorage.js';
 import {
   traceObject,
   installGlobalErrorLogging,
   installFetchLogging,
 } from './instrument.js';
+import { contribute, readPublicState, PRIVATE_STATE_ID } from './contribute.js';
 
 // Must run before any wallet or contract operation. midnight-js keeps this as
 // module-level state and throws on first use if it was never set.
@@ -31,139 +31,199 @@ const log = (msg, kind = 'info') => {
   $('log').prepend(line);
 };
 
-// The deployer runs no circuits, so these are never invoked during deploy.
-const witnesses = {
-  contributorSecret: ({ privateState }) => [privateState, new Uint8Array(32)],
-  rawContribution: ({ privateState }) => [privateState, 0n],
-  contributionBucket: ({ privateState }) => [privateState, 0n],
-};
-
 installGlobalErrorLogging(log);
 installFetchLogging(log);
 
 let session = null;
+let providers = null;
+
+const usd = (n) => `$${Number(n).toLocaleString('en-US')}`;
+
+/**
+ * Reading the public ledger needs no wallet and no private state, so the
+ * distribution is visible before anyone connects. Deliberately does not build
+ * a private state provider: that store is scoped to an account, and there is
+ * no account yet.
+ */
+const publicOnlyProviders = () => ({
+  publicDataProvider: indexerPublicDataProvider(PREPROD.indexer, PREPROD.indexerWs),
+});
+
+function buildProviders() {
+  const zkConfigProvider = traceObject(
+    'zkConfigProvider',
+    new FetchZkConfigProvider(
+      `${window.location.origin}/zk/informer`,
+      fetch.bind(window),
+    ),
+    ['getProverKey', 'getVerifierKey', 'getZKIR', 'get'],
+    log,
+  );
+
+  return {
+    ...publicOnlyProviders(),
+    // Private state is scoped to the connected wallet, so one browser holding
+    // two accounts cannot read across them.
+    privateStateProvider: levelPrivateStateProvider({
+      privateStateStoreName: 'informer-private-state',
+      // browserPasswordProvider is a factory; the provider is what it returns.
+      privateStoragePasswordProvider: browserPasswordProvider(),
+      accountId: session.addresses.shielded,
+    }),
+    zkConfigProvider,
+    proofProvider: traceObject(
+      'proofProvider',
+      httpClientProofProvider(PREPROD.proofServer, zkConfigProvider),
+      ['proveTx'],
+      log,
+    ),
+    walletProvider: traceObject(
+      'walletProvider',
+      session.walletProvider,
+      ['balanceTx', 'getCoinPublicKey', 'getEncryptionPublicKey'],
+      log,
+    ),
+    midnightProvider: traceObject(
+      'midnightProvider',
+      session.midnightProvider,
+      ['submitTx'],
+      log,
+    ),
+  };
+}
+
+// ---------------------------------------------------------------- connect ---
 
 $('connect').addEventListener('click', async () => {
   $('connect').disabled = true;
   try {
     log('Requesting connection. Approve it in the wallet extension.');
     session = await connectLace();
+    providers = buildProviders();
 
     $('addr-shielded').textContent = session.addresses.shielded;
-    $('addr-unshielded').textContent = session.addresses.unshielded;
-    $('addr-dust').textContent = session.addresses.dust;
-    $('wallet-info').hidden = false;
-
     const dust = await session.api.getDustBalance();
     $('dust-balance').textContent = `${dust.balance} (cap ${dust.cap})`;
 
+    $('wallet-info').hidden = false;
+    $('disconnect').hidden = false;
+    $('contribute').disabled = false;
     log(`Connected via ${session.connectorName}.`, 'ok');
-    $('deploy').disabled = false;
   } catch (err) {
     log(err.message, 'err');
     $('connect').disabled = false;
   }
 });
 
-$('deploy').addEventListener('click', async () => {
-  $('deploy').disabled = true;
+// ------------------------------------------------------------- disconnect ---
+
+$('disconnect').addEventListener('click', () => {
+  // The connector exposes no revoke call, so disconnecting is the app dropping
+  // every wallet-derived capability it holds. Nothing wallet-scoped survives.
+  session = null;
+  providers = null;
+
+  $('addr-shielded').textContent = '';
+  $('dust-balance').textContent = '';
+  $('wallet-info').hidden = true;
+  $('disconnect').hidden = true;
+  $('privacy-proof').hidden = true;
+  $('contribute').disabled = true;
+  $('connect').disabled = false;
+  log('Disconnected. Wallet handles and providers dropped.', 'ok');
+});
+
+// ------------------------------------------------------------- contribute ---
+
+$('contribute').addEventListener('click', async () => {
+  const raw = BigInt($('salary').value || '0');
+  const { minContribution, maxContribution } = INFORMER_PARAMS;
+
+  if (raw < minContribution || raw > maxContribution) {
+    log(
+      `Figure must be between ${usd(minContribution)} and ${usd(maxContribution)}.`,
+      'err',
+    );
+    return;
+  }
+
+  $('contribute').disabled = true;
   try {
-    log('Building providers.');
-    const zkConfigProvider = traceObject(
-      'zkConfigProvider',
-      new FetchZkConfigProvider(
-        `${window.location.origin}/zk/informer`,
-        fetch.bind(window),
-      ),
-      ['getProverKey', 'getVerifierKey', 'getZKIR', 'get'],
-      log,
-    );
-    if (!passwordIsPersistent()) {
-      log(
-        'Storage is blocked, so private state will not survive a reload.',
-        'err',
-      );
-    }
-    const providers = {
-      privateStateProvider: levelPrivateStateProvider({
-        privateStateStoreName: 'informer-private-state',
-        // The store is encrypted at rest, so a password provider is required.
-        privateStoragePasswordProvider: browserPasswordProvider(),
-        // Namespaces private state per wallet, so switching wallets does not
-        // read another wallet's state.
-        accountId: session.addresses.shielded,
-      }),
-      publicDataProvider: indexerPublicDataProvider(
-        PREPROD.indexer,
-        PREPROD.indexerWs,
-      ),
-      // Serves the compiled circuits and keys from public/zk/informer.
-      // Deliberately not /managed: that URL would collide with the real
-      // managed/ sources Vite transforms, and public/ files are served raw.
-      zkConfigProvider: zkConfigProvider,
-      // httpClientProofProvider takes (url, zkConfigProvider, config). Passing
-      // only the url left it without key material, because the internal
-      // getKeyMaterial swallows the resulting error and returns undefined.
-      proofProvider: traceObject(
-        'proofProvider',
-        httpClientProofProvider(PREPROD.proofServer, zkConfigProvider),
-        ['proveTx'],
-        log,
-      ),
-      walletProvider: traceObject(
-        'walletProvider',
-        session.walletProvider,
-        ['balanceTx', 'getCoinPublicKey', 'getEncryptionPublicKey'],
-        log,
-      ),
-      midnightProvider: traceObject(
-        'midnightProvider',
-        session.midnightProvider,
-        ['submitTx'],
-        log,
-      ),
-    };
+    const result = await contribute({ providers, raw, log });
 
-    // midnight-js 4.1.1 takes a CompiledContract wrapper, not a bare
-    // `new Contract(...)`. The wrapper carries the witnesses on an internal
-    // symbol that the runtime reads.
-    const compiledContract = CompiledContract.make('informer', Contract).pipe(
-      CompiledContract.withWitnesses(witnesses),
-    );
+    $('pp-raw').textContent = `${usd(raw)} — never transmitted`;
+    const low = result.bucket * INFORMER_PARAMS.bucketWidth;
+    $('pp-bucket').textContent =
+      `${result.bucket} (${usd(low)} to ${usd(low + INFORMER_PARAMS.bucketWidth)})`;
+    $('pp-tx').textContent = result.txHash ?? result.txId ?? 'submitted';
+    $('privacy-proof').hidden = false;
 
-    log('Deploying. The wallet will ask you to approve the transaction.');
-    const deployed = await deployContract(providers, {
-      compiledContract,
-      privateStateId: 'informer',
-      initialPrivateState: {},
-      args: [
-        INFORMER_PARAMS.bucketWidth,
-        INFORMER_PARAMS.minContribution,
-        INFORMER_PARAMS.maxContribution,
-        INFORMER_PARAMS.kAnonymityFloor,
-        label32(INFORMER_PARAMS.informerLabel),
-        label32(INFORMER_PARAMS.periodLabel),
-        hex32(PROVENANCE.policyHash),
-        hex32(PROVENANCE.circuitCommitment),
-      ],
-    });
-
-    const address = deployed.deployTxData.public.contractAddress;
-    $('contract-address').textContent = address;
-    $('deployed').hidden = false;
-    log('Deployed.', 'ok');
-    log(`Contract address: ${address}`, 'ok');
+    log('Contribution accepted.', 'ok');
+    await refreshState();
   } catch (err) {
     console.error(err);
+    const already = /already contributed/i.test(err.message ?? '');
     log(`${err.name}: ${err.message}`, 'err');
-    if (err.cause) log(`cause: ${err.cause.message ?? err.cause}`, 'err');
-    const frame = (err.stack ?? '').split(String.fromCharCode(10))[1]?.trim();
-    if (frame) log(`at ${frame}`, 'err');
-    $('deploy').disabled = false;
+    if (already) {
+      log(
+        'Rejected by the nullifier. The contract knows this participant already '
+          + 'contributed, without knowing who they are.',
+        'ok',
+      );
+    }
+  } finally {
+    $('contribute').disabled = session === null;
   }
 });
 
-// Surface the informer parameters this page would deploy, before anything runs.
+// ----------------------------------------------------------- public state ---
+
+async function refreshState() {
+  const p = providers ?? publicOnlyProviders();
+  log('Reading public contract state.');
+  const state = await readPublicState(p);
+  if (!state) {
+    log('No contract state found at the configured address.', 'err');
+    return;
+  }
+
+  $('state-summary').textContent =
+    `${state.contributionCount} contributions, ${state.nullifierCount} unique participants`;
+
+  const max = state.buckets.reduce((m, b) => (b.count > m ? b.count : m), 1n);
+  $('histogram').innerHTML = '';
+  for (const b of state.buckets) {
+    const low = b.index * state.bucketWidth;
+    const row = document.createElement('div');
+    row.className = 'bar';
+    row.innerHTML =
+      `<span class="label">${usd(low)}</span>` +
+      `<span class="fill" style="width:${(Number(b.count) / Number(max)) * 100}%"></span>` +
+      `<span class="n">${b.count}</span>`;
+    $('histogram').append(row);
+  }
+
+  const floor = state.kAnonymityFloor;
+  const note = $('floor-note');
+  if (state.contributionCount < floor) {
+    note.textContent =
+      `${state.contributionCount} of ${floor} contributions. This distribution is `
+      + `below the k-anonymity floor, so it is not yet large enough to hide an `
+      + `individual inside it.`;
+    note.hidden = false;
+  } else {
+    note.hidden = true;
+  }
+  log('Public state read.', 'ok');
+}
+
+$('refresh').addEventListener('click', () => {
+  refreshState().catch((err) => log(err.message, 'err'));
+});
+
+// ------------------------------------------------------------------ setup ---
+
+$('contract-address').textContent = CONTRACT_ADDRESS;
 $('params').textContent = [
   `bucket width      ${INFORMER_PARAMS.bucketWidth}`,
   `band              ${INFORMER_PARAMS.minContribution} to ${INFORMER_PARAMS.maxContribution}`,
@@ -172,4 +232,8 @@ $('params').textContent = [
   `period            ${INFORMER_PARAMS.periodLabel}`,
   `policy hash       ${PROVENANCE.policyHash.slice(0, 24)}...`,
   `circuit commit    ${PROVENANCE.circuitCommitment.slice(0, 24)}...`,
+  `private state     ${PRIVATE_STATE_ID}`,
 ].join('\n');
+
+// Public state needs no wallet, so show it immediately.
+refreshState().catch((err) => log(`Initial state read failed: ${err.message}`, 'err'));

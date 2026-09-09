@@ -7,14 +7,14 @@
     <style>
       :root {
         color-scheme: dark;
-        --bg: #0b0d12;
-        --panel: #12151d;
-        --line: #232838;
-        --text: #e6e9f0;
-        --muted: #8b93a7;
+        --bg: #0b0d0e;
+        --panel: #131617;
+        --line: rgba(255, 255, 255, 0.1);
+        --text: #f5f5f0;
+        --muted: #8f9496;
+        --accent: #c7ff3d;
         --ok: #4ade80;
         --err: #f87171;
-        --accent: #a78bfa;
       }
       * { box-sizing: border-box; }
       body {
@@ -22,10 +22,10 @@
         background: var(--bg);
         color: var(--text);
         font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
-        padding: 40px 20px;
+        padding: 40px 20px 80px;
       }
-      main { max-width: 720px; margin: 0 auto; }
-      h1 { font-size: 28px; margin: 0 0 4px; letter-spacing: -0.02em; }
+      main { max-width: 780px; margin: 0 auto; }
+      h1 { font-size: 30px; margin: 0 0 4px; letter-spacing: -0.03em; }
       .tagline { color: var(--muted); margin: 0 0 28px; }
       section {
         background: var(--panel);
@@ -35,32 +35,29 @@
         margin-bottom: 16px;
       }
       h2 {
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--muted);
-        margin: 0 0 12px;
-        font-weight: 600;
+        font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+        color: var(--muted); margin: 0 0 14px; font-weight: 600;
       }
       button {
-        background: var(--accent);
-        color: #14101f;
-        border: 0;
-        border-radius: 7px;
-        padding: 10px 18px;
-        font: inherit;
-        font-weight: 600;
-        cursor: pointer;
+        background: var(--accent); color: #14180a; border: 0; border-radius: 7px;
+        padding: 10px 18px; font: inherit; font-weight: 600; cursor: pointer;
       }
-      button:disabled { opacity: 0.4; cursor: not-allowed; }
+      button:disabled { opacity: 0.35; cursor: not-allowed; }
+      button.ghost {
+        background: transparent; color: var(--muted);
+        border: 1px solid var(--line);
+      }
+      button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+      input[type="number"] {
+        background: #0b0d0e; color: var(--text); border: 1px solid var(--line);
+        border-radius: 7px; padding: 10px 12px; font: inherit; width: 200px;
+      }
+      .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
       pre, .mono {
         font: 12.5px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace;
-        white-space: pre-wrap;
-        word-break: break-all;
-        margin: 0;
-        color: var(--muted);
+        white-space: pre-wrap; word-break: break-all; margin: 0; color: var(--muted);
       }
-      dl { display: grid; grid-template-columns: 116px 1fr; gap: 6px 12px; margin: 0; }
+      dl { display: grid; grid-template-columns: 120px 1fr; gap: 6px 12px; margin: 0; }
       dt { color: var(--muted); font-size: 12.5px; }
       dd { margin: 0; }
       .knows { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
@@ -68,12 +65,26 @@
       .knows li { font-size: 13.5px; margin-bottom: 3px; }
       .yes li::marker { content: '✓  '; color: var(--ok); }
       .no li::marker { content: '✗  '; color: var(--err); }
-      #log { max-height: 220px; overflow-y: auto; }
+      .split { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+      .split h3 {
+        font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+        margin: 0 0 8px; font-weight: 600;
+      }
+      .device h3 { color: var(--err); }
+      .chain h3 { color: var(--accent); }
+      .bar { display: grid; grid-template-columns: 90px 1fr 40px; gap: 8px; align-items: center; margin-bottom: 4px; }
+      .bar .fill { background: var(--accent); height: 14px; border-radius: 2px; min-width: 2px; }
+      .bar .label, .bar .n { font: 12px ui-monospace, Consolas, monospace; color: var(--muted); }
+      #log { max-height: 240px; overflow-y: auto; }
       .line { font: 12.5px/1.6 ui-monospace, Consolas, monospace; }
       .line.ok { color: var(--ok); }
       .line.err { color: var(--err); }
       .line.info { color: var(--muted); }
+      .note { color: var(--muted); font-size: 13px; margin: 10px 0 0; }
       [hidden] { display: none !important; }
+      @media (max-width: 640px) {
+        .knows, .split { grid-template-columns: 1fr; }
+      }
     </style>
   </head>
   <body>
@@ -86,9 +97,9 @@
         <div class="knows">
           <ul class="yes">
             <li>A valid contribution was made</li>
-            <li>By an eligible participant</li>
             <li>Falling in a given band</li>
             <li>Whose nullifier was unused</li>
+            <li>The new aggregate total</li>
           </ul>
           <ul class="no">
             <li>Who contributed</li>
@@ -100,31 +111,70 @@
       </section>
 
       <section>
-        <h2>Informer parameters</h2>
-        <pre id="params"></pre>
-      </section>
-
-      <section>
         <h2>Wallet</h2>
-        <button id="connect">Connect wallet</button>
+        <div class="row">
+          <button id="connect">Connect wallet</button>
+          <button id="disconnect" class="ghost" hidden>Disconnect</button>
+        </div>
         <div id="wallet-info" hidden style="margin-top: 14px">
           <dl>
             <dt>Shielded</dt><dd class="mono" id="addr-shielded"></dd>
-            <dt>Unshielded</dt><dd class="mono" id="addr-unshielded"></dd>
-            <dt>Dust</dt><dd class="mono" id="addr-dust"></dd>
             <dt>Dust balance</dt><dd class="mono" id="dust-balance"></dd>
           </dl>
         </div>
       </section>
 
       <section>
-        <h2>Deploy to Preprod</h2>
-        <button id="deploy" disabled>Deploy Informer</button>
-        <div id="deployed" hidden style="margin-top: 14px">
-          <dl>
-            <dt>Contract</dt><dd class="mono" id="contract-address"></dd>
-          </dl>
+        <h2>Contribute privately</h2>
+        <div class="row">
+          <label for="salary" class="mono">Annual total compensation, USD</label>
+          <input id="salary" type="number" min="10000" max="1000000" step="1000"
+                 value="72000" aria-label="Annual total compensation in USD" />
+          <button id="contribute" disabled>Contribute</button>
         </div>
+        <p class="note">
+          The figure is written to local private state, read by a witness inside
+          the circuit, and constrained against the band it claims. The
+          transaction carries a proof, not the number.
+        </p>
+
+        <div id="privacy-proof" hidden style="margin-top: 18px">
+          <div class="split">
+            <div class="device">
+              <h3>Stayed on this device</h3>
+              <dl>
+                <dt>Your figure</dt><dd class="mono" id="pp-raw"></dd>
+                <dt>Your secret</dt><dd class="mono">32 bytes, never transmitted</dd>
+              </dl>
+            </div>
+            <div class="chain">
+              <h3>Reached the chain</h3>
+              <dl>
+                <dt>Band</dt><dd class="mono" id="pp-bucket"></dd>
+                <dt>Nullifier</dt><dd class="mono">one-way hash of a secret it cannot see</dd>
+                <dt>Transaction</dt><dd class="mono" id="pp-tx"></dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>What the chain actually holds</h2>
+        <div class="row">
+          <button id="refresh" class="ghost">Read public state</button>
+          <span class="mono" id="state-summary"></span>
+        </div>
+        <div id="histogram" style="margin-top: 14px"></div>
+        <p class="note" id="floor-note" hidden></p>
+      </section>
+
+      <section>
+        <h2>Informer parameters</h2>
+        <pre id="params"></pre>
+        <dl style="margin-top: 12px">
+          <dt>Contract</dt><dd class="mono" id="contract-address"></dd>
+        </dl>
       </section>
 
       <section>
