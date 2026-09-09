@@ -219,6 +219,21 @@ $('contribute').addEventListener('click', async () => {
     console.error(err);
     const already = /already contributed/i.test(err.message ?? '');
     log(`${err.name}: ${err.message}`, 'err');
+
+    // midnight-js wraps the real failure as a cause. Its stack is the only
+    // thing that names which call actually threw, so surface it.
+    let cause = err.cause;
+    let depth = 0;
+    while (cause && depth < 3) {
+      log(`cause[${depth}]: ${cause.name ?? 'Error'}: ${cause.message ?? String(cause)}`, 'err');
+      const frames = String(cause.stack ?? '')
+        .split(String.fromCharCode(10))
+        .filter((l) => l.includes('at '))
+        .slice(0, 4);
+      for (const f of frames) log(`  ${f.trim()}`, 'err');
+      cause = cause.cause;
+      depth += 1;
+    }
     if (already) {
       log(
         'Rejected by the nullifier. The contract knows this participant already '
