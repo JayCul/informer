@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronDown, Code, Plug, Terminal, Unplug } from 'lucide-react';
+import { ChevronDown, Code, Plug, Terminal, Trash2, Unplug } from 'lucide-react';
 
 import { useInformer } from './useInformer';
 import { useTheme } from './useTheme';
@@ -120,7 +120,7 @@ export default function App() {
               <Contribute
                 connected={m.connected} proofServerOk={m.proofServerOk} phase={m.phase}
                 receipt={m.receipt} rejection={m.rejection}
-                onSubmit={m.submit} onForget={m.forgetSecret}
+                onSubmit={m.submit}
               />
             )}
           </div>
@@ -208,6 +208,25 @@ export default function App() {
                     }>{l.text}</p>
                   ))}
                 </div>
+              </div>
+
+              <div className="card p-6 lg:col-span-2">
+                <h3 className="text-[10px] uppercase tracking-[0.14em] text-muted mb-3">Reset local identity</h3>
+                <p className="text-sm text-muted leading-relaxed max-w-3xl">
+                  Deletes the contributor secret held in this browser, so the next contribution is
+                  accepted rather than rejected. Nothing on chain changes. This is possible only
+                  because the secret is not yet bound to an issued credential, which is the sybil gap
+                  documented in POLICY.md. It exists so the accepted-then-rejected sequence can be
+                  reproduced, not as account management.
+                </p>
+                {m.connected ? (
+                  <button onClick={() => m.forgetSecret()}
+                          className="mt-4 inline-flex items-center gap-2 rounded-lg border border-line px-4 py-2 text-sm text-muted hover:text-ink hover:border-ink/20 transition">
+                    <Trash2 size={14} aria-hidden /> Reset local identity
+                  </button>
+                ) : (
+                  <p className="mt-4 text-xs text-muted">Connect a wallet to use this.</p>
+                )}
               </div>
             </motion.div>
           )}
