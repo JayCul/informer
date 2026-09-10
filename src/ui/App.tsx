@@ -56,10 +56,24 @@ export default function App() {
             <div className="flex-1">
               <p className="text-sm font-semibold">Wallet did not connect</p>
               <p className="mt-1.5 text-sm text-muted leading-relaxed break-words">{m.connectError}</p>
-              <p className="mt-2 text-xs text-muted leading-relaxed">
-                Check that Lace is installed, unlocked and set to Preprod. If Lace was
-                just installed or updated, reload this page so it can inject.
-              </p>
+              {/RemoteApiShutdown|was shutdown|can no longer be used/i.test(m.connectError) ? (
+                <>
+                  <p className="mt-2 text-xs text-muted leading-relaxed">
+                    Lace's connection to this tab has gone stale. This happens when the
+                    extension restarts in the background: the tab keeps the old wallet
+                    object, and it no longer answers. Reload the page to get a fresh one.
+                  </p>
+                  <button onClick={() => window.location.reload()}
+                          className="mt-3 inline-flex items-center rounded-lg bg-volt px-3.5 py-2 text-xs font-semibold text-volt-ink hover:brightness-110 transition">
+                    Reload page
+                  </button>
+                </>
+              ) : (
+                <p className="mt-2 text-xs text-muted leading-relaxed">
+                  Check that Lace is installed, unlocked and set to Preprod. If Lace was
+                  just installed or updated, reload this page so it can inject.
+                </p>
+              )}
             </div>
             <button onClick={m.dismissConnectError} aria-label="Dismiss"
                     className="text-muted hover:text-ink transition">
