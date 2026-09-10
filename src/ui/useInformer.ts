@@ -52,6 +52,8 @@ export function useInformer() {
   const [phase, setPhase] = useState<Phase>('idle');
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [rejection, setRejection] = useState<string | null>(null);
+  const [connecting, setConnecting] = useState(false);
+  const [connectError, setConnectError] = useState<string | null>(null);
 
   const session = useRef<any>(null);
   const providers = useRef<any>(null);
@@ -91,6 +93,8 @@ export function useInformer() {
   }, [refreshState, refreshProofServer, log]);
 
   const connect = useCallback(async () => {
+    setConnecting(true);
+    setConnectError(null);
     try {
       log('Requesting connection. Approve it in the wallet extension.');
       const s = await connectLace();
@@ -128,8 +132,14 @@ export function useInformer() {
       log(`Connected via ${s.connectorName}.`, 'ok');
       await refreshProofServer();
     } catch (err: any) {
-      log(describeError(err), 'err');
+      const message = describeError(err);
+      log(message, 'err');
+      // Surfaced in the UI as well as the trace: a connect failure that only
+      // reaches a collapsed panel looks like a dead button.
+      setConnectError(message.replace(/^Error:\s*/, ''));
       throw err;
+    } finally {
+      setConnecting(false);
     }
   }, [log, publicOnly, refreshProofServer]);
 
@@ -144,6 +154,7 @@ export function useInformer() {
     setReceipt(null);
     setRejection(null);
     setPhase('idle');
+    setConnectError(null);
     log('Disconnected. Wallet handles and providers dropped.', 'ok');
   }, [log]);
 
@@ -197,6 +208,7 @@ export function useInformer() {
 
   return {
     logs, connected, address, dust, proofServerOk, state, phase, receipt, rejection,
+    connecting, connectError, dismissConnectError: () => setConnectError(null),
     connect, disconnect, submit, forgetSecret, refreshState, refreshProofServer,
     proofServerCommand: PROOF_SERVER_COMMAND as string,
   };

@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronDown, Code, Plug, Terminal, Trash2, Unplug } from 'lucide-react';
+import { ChevronDown, Code, Plug, Terminal, Trash2, Unplug, X } from 'lucide-react';
 
 import { useInformer } from './useInformer';
 import { useTheme } from './useTheme';
@@ -40,14 +40,34 @@ export default function App() {
                 <Unplug size={14} aria-hidden /> Disconnect
               </button>
             ) : (
-              <button onClick={() => m.connect().catch(() => {})}
-                      className="inline-flex items-center gap-2 rounded-lg bg-volt px-4 py-2 text-sm font-semibold text-volt-ink hover:brightness-110 transition">
-                <Plug size={14} aria-hidden /> Connect wallet
+              <button onClick={() => m.connect().catch(() => {})} disabled={m.connecting}
+                      className="inline-flex items-center gap-2 rounded-lg bg-volt px-4 py-2 text-sm font-semibold text-volt-ink hover:brightness-110 transition disabled:opacity-60 disabled:cursor-wait">
+                <Plug size={14} aria-hidden /> {m.connecting ? 'Connecting…' : 'Connect wallet'}
               </button>
             )}
           </div>
         </div>
       </header>
+
+      {m.connectError && (
+        <div role="alert"
+             className="fixed top-20 right-4 left-4 sm:left-auto sm:right-6 z-50 sm:max-w-sm card p-5 border-red-500/40">
+          <div className="flex items-start gap-3">
+            <div className="flex-1">
+              <p className="text-sm font-semibold">Wallet did not connect</p>
+              <p className="mt-1.5 text-sm text-muted leading-relaxed break-words">{m.connectError}</p>
+              <p className="mt-2 text-xs text-muted leading-relaxed">
+                Check that Lace is installed, unlocked and set to Preprod. If Lace was
+                just installed or updated, reload this page so it can inject.
+              </p>
+            </div>
+            <button onClick={m.dismissConnectError} aria-label="Dismiss"
+                    className="text-muted hover:text-ink transition">
+              <X size={16} aria-hidden />
+            </button>
+          </div>
+        </div>
+      )}
 
       <Hero
         state={m.state}
@@ -112,9 +132,9 @@ export default function App() {
           />
           <div className="mt-10">
             {!m.connected ? (
-              <button onClick={() => m.connect().catch(() => {})}
-                      className="inline-flex items-center gap-2 rounded-xl bg-volt px-6 py-3.5 font-semibold text-volt-ink hover:brightness-110 transition">
-                <Plug size={16} aria-hidden /> Connect wallet to contribute
+              <button onClick={() => m.connect().catch(() => {})} disabled={m.connecting}
+                      className="inline-flex items-center gap-2 rounded-xl bg-volt px-6 py-3.5 font-semibold text-volt-ink hover:brightness-110 transition disabled:opacity-60 disabled:cursor-wait">
+                <Plug size={16} aria-hidden /> {m.connecting ? 'Connecting…' : 'Connect wallet to contribute'}
               </button>
             ) : (
               <Contribute
