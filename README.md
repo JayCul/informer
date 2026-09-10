@@ -14,7 +14,8 @@ Compensation is the first contribution category. The contract is not
 compensation specific.
 
 **Live demo:** https://informer-v1.vercel.app
-**Demo video:** https://youtu.be/kfo0uWB3zvY
+**Demo video (Level 3):** https://youtu.be/c80VeIqI6gY
+**Demo video (Level 2):** https://youtu.be/kfo0uWB3zvY
 **Proposal:** [PROPOSAL.md](PROPOSAL.md) (Anonymous Feedback / Survey)
 **Preprod contract:** `7c4f5fcc486dc6e36ee13003173d1d2186170bdbb00292f9c403182d52c718b5`
 
