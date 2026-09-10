@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronDown, Code, Plug, Terminal, Trash2, Unplug, X } from 'lucide-react';
+import { ChevronDown, Code, Plug, Terminal, Unplug } from 'lucide-react';
 
 import { useInformer } from './useInformer';
 import { useTheme } from './useTheme';
@@ -40,48 +40,14 @@ export default function App() {
                 <Unplug size={14} aria-hidden /> Disconnect
               </button>
             ) : (
-              <button onClick={() => m.connect().catch(() => {})} disabled={m.connecting}
-                      className="inline-flex items-center gap-2 rounded-lg bg-volt px-4 py-2 text-sm font-semibold text-volt-ink hover:brightness-110 transition disabled:opacity-60 disabled:cursor-wait">
-                <Plug size={14} aria-hidden /> {m.connecting ? 'Connecting…' : 'Connect wallet'}
+              <button onClick={() => m.connect().catch(() => {})}
+                      className="inline-flex items-center gap-2 rounded-lg bg-volt px-4 py-2 text-sm font-semibold text-volt-ink hover:brightness-110 transition">
+                <Plug size={14} aria-hidden /> Connect wallet
               </button>
             )}
           </div>
         </div>
       </header>
-
-      {m.connectError && (
-        <div role="alert"
-             className="fixed top-20 right-4 left-4 sm:left-auto sm:right-6 z-50 sm:max-w-sm card p-5 border-red-500/40">
-          <div className="flex items-start gap-3">
-            <div className="flex-1">
-              <p className="text-sm font-semibold">Wallet did not connect</p>
-              <p className="mt-1.5 text-sm text-muted leading-relaxed break-words">{m.connectError}</p>
-              {/RemoteApiShutdown|was shutdown|can no longer be used/i.test(m.connectError) ? (
-                <>
-                  <p className="mt-2 text-xs text-muted leading-relaxed">
-                    Lace's connection to this tab has gone stale. This happens when the
-                    extension restarts in the background: the tab keeps the old wallet
-                    object, and it no longer answers. Reload the page to get a fresh one.
-                  </p>
-                  <button onClick={() => window.location.reload()}
-                          className="mt-3 inline-flex items-center rounded-lg bg-volt px-3.5 py-2 text-xs font-semibold text-volt-ink hover:brightness-110 transition">
-                    Reload page
-                  </button>
-                </>
-              ) : (
-                <p className="mt-2 text-xs text-muted leading-relaxed">
-                  Check that Lace is installed, unlocked and set to Preprod. If Lace was
-                  just installed or updated, reload this page so it can inject.
-                </p>
-              )}
-            </div>
-            <button onClick={m.dismissConnectError} aria-label="Dismiss"
-                    className="text-muted hover:text-ink transition">
-              <X size={16} aria-hidden />
-            </button>
-          </div>
-        </div>
-      )}
 
       <Hero
         state={m.state}
@@ -146,15 +112,15 @@ export default function App() {
           />
           <div className="mt-10">
             {!m.connected ? (
-              <button onClick={() => m.connect().catch(() => {})} disabled={m.connecting}
-                      className="inline-flex items-center gap-2 rounded-xl bg-volt px-6 py-3.5 font-semibold text-volt-ink hover:brightness-110 transition disabled:opacity-60 disabled:cursor-wait">
-                <Plug size={16} aria-hidden /> {m.connecting ? 'Connecting…' : 'Connect wallet to contribute'}
+              <button onClick={() => m.connect().catch(() => {})}
+                      className="inline-flex items-center gap-2 rounded-xl bg-volt px-6 py-3.5 font-semibold text-volt-ink hover:brightness-110 transition">
+                <Plug size={16} aria-hidden /> Connect wallet to contribute
               </button>
             ) : (
               <Contribute
                 connected={m.connected} proofServerOk={m.proofServerOk} phase={m.phase}
                 receipt={m.receipt} rejection={m.rejection}
-                onSubmit={m.submit}
+                onSubmit={m.submit} onForget={m.forgetSecret}
               />
             )}
           </div>
@@ -242,25 +208,6 @@ export default function App() {
                     }>{l.text}</p>
                   ))}
                 </div>
-              </div>
-
-              <div className="card p-6 lg:col-span-2">
-                <h3 className="text-[10px] uppercase tracking-[0.14em] text-muted mb-3">Reset local identity</h3>
-                <p className="text-sm text-muted leading-relaxed max-w-3xl">
-                  Deletes the contributor secret held in this browser, so the next contribution is
-                  accepted rather than rejected. Nothing on chain changes. This is possible only
-                  because the secret is not yet bound to an issued credential, which is the sybil gap
-                  documented in POLICY.md. It exists so the accepted-then-rejected sequence can be
-                  reproduced, not as account management.
-                </p>
-                {m.connected ? (
-                  <button onClick={() => m.forgetSecret()}
-                          className="mt-4 inline-flex items-center gap-2 rounded-lg border border-line px-4 py-2 text-sm text-muted hover:text-ink hover:border-ink/20 transition">
-                    <Trash2 size={14} aria-hidden /> Reset local identity
-                  </button>
-                ) : (
-                  <p className="mt-4 text-xs text-muted">Connect a wallet to use this.</p>
-                )}
               </div>
             </motion.div>
           )}

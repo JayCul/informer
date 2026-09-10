@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Check, Lock, ShieldAlert } from 'lucide-react';
+import { ArrowRight, Check, Lock, ShieldAlert, Trash2 } from 'lucide-react';
 import type { Phase, Receipt } from '../useInformer';
 import { INFORMER_PARAMS } from '../../config.js';
 
@@ -13,10 +13,11 @@ type Props = {
   receipt: Receipt | null;
   rejection: string | null;
   onSubmit: (raw: bigint) => void;
+  onForget: () => void;
 };
 
 export default function Contribute({
-  connected, proofServerOk, phase, receipt, rejection, onSubmit,
+  connected, proofServerOk, phase, receipt, rejection, onSubmit, onForget,
 }: Props) {
   const [value, setValue] = useState('72000');
 
@@ -56,6 +57,16 @@ export default function Contribute({
           {!busy && <ArrowRight size={16} aria-hidden />}
         </button>
 
+        {connected && (
+          <button
+            onClick={onForget}
+            className="inline-flex items-center gap-2 rounded-lg border border-line px-4 py-3.5 text-sm text-muted
+                       hover:text-ink hover:border-ink/20 transition"
+            title="Deletes the contributor secret stored in this browser. Changes nothing on chain."
+          >
+            <Trash2 size={14} aria-hidden /> Reset local identity
+          </button>
+        )}
       </div>
 
       {!inBand && value !== '' && (
